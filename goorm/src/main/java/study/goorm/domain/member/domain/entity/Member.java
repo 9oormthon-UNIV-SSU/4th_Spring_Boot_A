@@ -41,6 +41,7 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING) // 활성화여부
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'", nullable = false)
+    // DB 컬럼을 문자형 (15자 제한)으로 생성하고 기본 값을 ACTIVE로 설정, null값 허용 안됨
     private  MemberStatus status;
 
     @Column(length = 50)
