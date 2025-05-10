@@ -5,4 +5,6 @@ public interface BaseCode {
     String getCode();
 
     String getMessage();
+
+    ReasonDTO getReasonHttpStatus();
 }
