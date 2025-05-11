@@ -24,4 +24,14 @@ public enum SuccessStatus implements BaseCode{
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public ReasonDTO getReasonHttpStatus() {
+        return ReasonDTO.builder()
+                .message(message)
+                .code(code)
+                .isSuccess(true)
+                .httpStatus(httpStatus)
+                .build();
+    }
 }
