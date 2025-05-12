@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import study.goorm.global.error.code.status.BaseCode;
-import study.goorm.global.error.code.status.BaseErrorCode;
-import study.goorm.global.error.code.status.ErrorStatus;
-import study.goorm.global.error.code.status.SuccessStatus;
+import study.goorm.global.error.code.BaseCode;
+import study.goorm.global.error.code.BaseErrorCode;
 
 @Getter
 @AllArgsConstructor
@@ -21,19 +19,20 @@ public class BaseResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 
-    public static <T> BaseResponse<T> onSuccess(BaseCode status, T result) {
+
+    public static <T> BaseResponse<T> onSuccess(BaseCode code, T result) {
         return new BaseResponse<>(
                 true,
-                status.getCode(),
-                status.getMessage(),
+                code.getCode(),
+                code.getMessage(),
                 result);
     }
 
-    public static <T> BaseResponse<T> onFailure(BaseErrorCode status, T result) {
+    public static <T> BaseResponse<T> onFailure(BaseErrorCode code, T result) {
         return new BaseResponse<>(
                 false,
-                status.getCode(),
-                status.getMessage(),
+                code.getCode(),
+                code.getMessage(),
                 result);
     }
 }

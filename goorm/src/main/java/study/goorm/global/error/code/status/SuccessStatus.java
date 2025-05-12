@@ -3,10 +3,12 @@ package study.goorm.global.error.code.status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import study.goorm.global.error.code.BaseCode;
+import study.goorm.global.error.code.ReasonDTO;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus implements BaseCode{
+public enum SuccessStatus implements BaseCode {
     //Common
     OK(HttpStatus.OK, "COMMON_200", "성공입니다.");
 
@@ -22,5 +24,15 @@ public enum SuccessStatus implements BaseCode{
     @Override
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public ReasonDTO getReasonHttpStatus() {
+        return ReasonDTO.builder()
+                .message(message)
+                .code(code)
+                .isSuccess(true)
+                .httpStatus(httpStatus)
+                .build();
     }
 }
