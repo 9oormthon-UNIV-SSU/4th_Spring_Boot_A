@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    url: ${DB_URL}
+    username: root
+    password: thdtjdghks@
+    url: jdbc:mysql://localhost:3306/photogram
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
