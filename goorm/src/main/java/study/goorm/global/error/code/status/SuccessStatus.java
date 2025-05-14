@@ -6,11 +6,22 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus {
+public enum SuccessStatus implements BaseCode {
     OK(HttpStatus.OK, "COMMON_200", "성공입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
+
+    @Override
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
 
 }
