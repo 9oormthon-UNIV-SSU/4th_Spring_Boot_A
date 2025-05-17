@@ -2,7 +2,7 @@ spring:
   datasource:
     username: root
     password: thdtjdghks@
-    url: jdbc:mysql://localhost:3306/photogram
+    url: jdbc:mysql://localhost:3306/goorm
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
