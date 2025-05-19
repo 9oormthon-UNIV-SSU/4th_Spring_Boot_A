@@ -4,18 +4,24 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.cloth.application.ClothService;
+import study.goorm.domain.cloth.dto.ClothRequestDTO;
 import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.model.enums.ClothSort;
+import study.goorm.domain.model.exception.annotation.CheckPage;
+import study.goorm.domain.model.exception.annotation.CheckPageSize;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/cloth-")
+@RequestMapping("/cloth")
 @Validated
 public class ClothRestController {
 
@@ -48,13 +54,44 @@ public class ClothRestController {
     public BaseResponse<ClothResponseDTO.MemberClosetResult> getMemberCloset(
             @RequestParam(value = "clokey-id") String clokeyId,
             @RequestParam ClothSort sort,
-            @RequestParam int page,
-            @RequestParam int size
+            @RequestParam @CheckPage int page,
+            @RequestParam @CheckPageSize int size
     ) {
 
-        ClothResponseDTO.MemberClosetResult result = clothService.getMemberCloset(clokeyId,sort,page,size);
+        ClothResponseDTO.MemberClosetResult result = clothService.getMemberCloset(clokeyId,sort,page-1,size);
 
         return BaseResponse.onSuccess(SuccessStatus.CLOTH_VIEW_SUCCESS, result);
+    }
+
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "새로운 옷을 생성하는 API", description = "request body에 ClothCreateRequest 형식의 데이터를 전달해주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_201", description = "CREATED, 성공적으로 생성되었습니다."),
+    })
+    public BaseResponse<ClothResponseDTO.ClothCreateResult> createCloth(
+            @RequestPart("clothCreateRequest") @Valid ClothRequestDTO.ClothCreateRequest clothCreateRequest,
+            @RequestPart("imageFile") MultipartFile imageFile
+    ) {
+        ClothResponseDTO.ClothCreateResult result = clothService.createCloth(clothCreateRequest,imageFile);
+
+        return BaseResponse.onSuccess(SuccessStatus.CLOTH_CREATED, result);
+    }
+
+    @DeleteMapping("/{cloth-id}")
+    @Operation(summary = "특정 옷을 삭제하는 API", description = "path variable로 cloth_id를 넘겨주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_204", description = "OK, 성공적으로 삭제되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "cloth-id", description = "옷의 id, path variable 입니다.")
+    })
+    public BaseResponse<Void> deleteCloth(
+            @PathVariable(value = "cloth-id") Long clothId
+    ) {
+
+        clothService.deleteCloth(clothId);
+
+        return BaseResponse.onSuccess(SuccessStatus.CLOTH_DELETED, null);
     }
 }
 
