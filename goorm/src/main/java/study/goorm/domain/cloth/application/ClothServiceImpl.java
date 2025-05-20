@@ -16,6 +16,9 @@ import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.cloth.dto.ClothRequestDTO;
 import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.cloth.exception.ClothException;
+import study.goorm.domain.folder.domain.entity.ClothFolder;
+import study.goorm.domain.folder.domain.repository.ClothFolderRepository;
+import study.goorm.domain.history.domain.repository.HistoryClothRepository;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
@@ -33,6 +36,8 @@ public class ClothServiceImpl implements ClothService{
     private final MemberRepository memberRepository;
     private final ClothImageQueryService clothImageQueryService;
     private final CategoryRepository categoryRepository;
+    private final ClothFolderRepository clothFolderRepository;
+    private final HistoryClothRepository historyClothRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -109,5 +114,22 @@ public class ClothServiceImpl implements ClothService{
         clothImageRepository.save(newClothImage);
         // Converter로 넘겨주기만 하면 끝
         return ClothConverter.toClothCreateResult(newCloth);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCloth(Long clothId) {
+
+        Cloth cloth = clothRepository.findById(clothId)
+                .orElseThrow(()-> new ClothException(ErrorStatus.NO_SUCH_CLOTH));
+
+        //매핑 테이블 삭제
+        clothImageRepository.deleteAllByCloth(cloth);
+        clothFolderRepository.deleteAllByCloth(cloth);
+        historyClothRepository.deleteAllByCloth(cloth);
+
+
+        //최종 옷 삭제
+        clothRepository.delete(cloth);
     }
 }
