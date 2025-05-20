@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = CheckLowerUpperTempBoundValidator.class)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER}) // ElementType.Type -> 클래스에도 붙일 수 있음
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CheckLowerUpperTempBound {
 

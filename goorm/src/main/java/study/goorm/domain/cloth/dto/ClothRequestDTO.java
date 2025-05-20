@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import study.goorm.domain.model.annotation.CheckLowerUpperTempBound;
 import study.goorm.domain.model.enums.Season;
 import study.goorm.domain.model.enums.ThicknessLevel;
 
@@ -17,6 +18,7 @@ public class ClothRequestDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @CheckLowerUpperTempBound
     public static class ClothCreateRequest {
 
         private Long memberId;
