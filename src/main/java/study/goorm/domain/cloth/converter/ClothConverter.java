@@ -2,6 +2,7 @@ package study.goorm.domain.cloth.converter;
 
 import org.springframework.data.domain.Page;
 import study.goorm.domain.cloth.domain.entity.Cloth;
+import study.goorm.domain.cloth.dto.ClothRequestDTO;
 import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.member.domain.entity.Member;
 
@@ -57,4 +58,9 @@ public class ClothConverter {
                 .collect(Collectors.toList());
     }
 
+    public static ClothResponseDTO.ClothCreateResult toClothCreateResult(Cloth cloth){
+        return ClothResponseDTO.ClothCreateResult.builder()
+                .id(cloth.getId())
+                .build();
+    }
 }
