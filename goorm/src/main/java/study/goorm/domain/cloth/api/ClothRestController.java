@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -70,7 +71,7 @@ public class ClothRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_201", description = "CREATED, 성공적으로 생성되었습니다."),
     })
     public BaseResponse<ClothResponseDTO.ClothCreateResult> createCloth(
-            @RequestPart("clothCreateRequest") ClothRequestDTO.ClothCreateRequest clothCreateRequest,
+            @RequestPart("clothCreateRequest") @Valid ClothRequestDTO.ClothCreateRequest clothCreateRequest,
             @RequestPart("imageFile") MultipartFile imageFile
     ) {
         ClothResponseDTO.ClothCreateResult result = clothService.createCloth(clothCreateRequest,imageFile);

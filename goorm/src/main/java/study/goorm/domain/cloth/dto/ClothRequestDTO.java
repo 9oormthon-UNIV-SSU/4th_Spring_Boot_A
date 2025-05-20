@@ -1,5 +1,7 @@
 package study.goorm.domain.cloth.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,8 +27,12 @@ public class ClothRequestDTO {
 
         private List<Season> seasons;
 
+        @Max(40)
+        @Min(-20)
         private Integer tempUpperBound;
 
+        @Max(40)
+        @Min(-20)
         private Integer tempLowerBound;
 
         private ThicknessLevel thicknessLevel;
