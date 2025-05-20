@@ -1,9 +1,12 @@
 package study.goorm.domain.cloth.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import study.goorm.domain.cloth.exception.annotation.CheckLowerUpperTempBound;
 import study.goorm.domain.model.enums.Season;
 import study.goorm.domain.model.enums.ThicknessLevel;
 
@@ -15,6 +18,7 @@ public class ClothRequestDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @CheckLowerUpperTempBound
     public static class ClothCreateRequest {
 
         private Long memberId;
@@ -25,8 +29,12 @@ public class ClothRequestDTO {
 
         private List<Season> seasons;
 
+        @Max(40)
+        @Min(-20)
         private Integer tempUpperBound;
 
+        @Max(40)
+        @Min(-20)
         private Integer tempLowerBound;
 
         private ThicknessLevel thicknessLevel;

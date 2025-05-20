@@ -68,5 +68,11 @@ public class ClothResponseDTO {
         private Long id;
     }
 
-
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothDeleteResult {
+        private Long id;
+    }
 }

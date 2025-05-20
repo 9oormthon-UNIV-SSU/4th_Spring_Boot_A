@@ -23,4 +23,6 @@ public interface ClothImageRepository extends JpaRepository<ClothImage, Long> {
     ) AS firsts ON ci.id = firsts.min_id
 """, nativeQuery = true)
     List<ClothImage> findFirstImagesByClothIds(@Param("clothIds") List<Long> clothIds);
+
+    void deleteAllByCloth(Cloth cloth);
 }
