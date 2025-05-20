@@ -57,4 +57,12 @@ public class ClothResponseDTO {
         private String imageUrl;
         private int wearNum;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothCreateResult {
+        private Long id;
+    }
 }
