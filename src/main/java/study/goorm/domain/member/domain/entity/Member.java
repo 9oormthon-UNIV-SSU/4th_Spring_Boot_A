@@ -43,6 +43,6 @@ public class Member extends BaseEntity {
     private String profileBackImageUrl;
 
     @Enumerated(EnumType.STRING) // 활성화 여부
-    @Column(columnDefinition = "VARCHAR(15 DEFAULT 'ACTIVE'", nullable = false)
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'", nullable = false)
     private MemberStatus status;
 }
