@@ -23,7 +23,7 @@ import study.goorm.domain.cloth.domain.repository.CategoryRepository;
 import study.goorm.domain.model.enums.ClothSort;
 import study.goorm.global.error.code.status.ErrorStatus;
 import study.goorm.domain.folder.domain.repository.ClothFolderRepository;
-import study.goorm.domain.history.domain.repository.HistoryClothRepository
+import study.goorm.domain.history.domain.repository.HistoryClothRepository;
 
 import java.util.List;
 import java.util.Map;
