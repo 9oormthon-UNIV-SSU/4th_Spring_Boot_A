@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import study.goorm.domain.cloth.domain.application.ClothService;
 import study.goorm.domain.cloth.domain.dto.ClothResponseDTO;
 import study.goorm.domain.model.enums.ClothSort;
+import study.goorm.domain.model.exception.annotation.CheckPage;
+import study.goorm.domain.model.exception.annotation.CheckPageSize;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
@@ -49,11 +51,11 @@ public class ClothRestController {
     public BaseResponse<ClothResponseDTO.MemberClosetResult> getMemberCloset(
             @RequestParam(value = "clokey-id") String clokeyId,
             @RequestParam ClothSort sort,
-            @RequestParam int page,
-            @RequestParam int size
+            @RequestParam @CheckPage int page,
+            @RequestParam @CheckPageSize int size
     ) {
 
-        ClothResponseDTO.MemberClosetResult result = clothService.getMemberCloset(clokeyId,sort,page,size);
+        ClothResponseDTO.MemberClosetResult result = clothService.getMemberCloset(clokeyId,sort,page-1,size);
 
         return BaseResponse.onSuccess(SuccessStatus.CLOTH_VIEW_SUCCESS, result);
     }
