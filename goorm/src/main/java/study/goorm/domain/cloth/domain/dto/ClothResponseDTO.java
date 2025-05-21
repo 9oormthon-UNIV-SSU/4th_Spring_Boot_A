@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ClothResponseDTO {
 
+    // 옷 조회(수정용) DTO
     @Builder
     @Getter
     @NoArgsConstructor
@@ -26,6 +27,40 @@ public class ClothResponseDTO {
         private String brand;
         private String imageUrl;
         private Long categoryId;
+    }
+
+    // 유저 옷장 조회 DTO
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberClosetResult {
+        private String nickName;
+        private ClothPreviewListResult clothPreviewListResult;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothPreviewListResult {
+        private List<ClothPreview> clothPreviews;
+        private int totalPage;
+        private long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothPreview {
+        private Long id;
+        private String name;
+        private String imageUrl;
+        private int wearNum;
     }
 
 }
