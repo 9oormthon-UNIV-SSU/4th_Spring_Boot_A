@@ -7,7 +7,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum SuccessStatus implements BaseCode {
-    OK(HttpStatus.OK, "COMMON_200", "성공입니다.");
+    // Common
+    OK(HttpStatus.OK, "COMMON_200", "성공입니다."),
+
+    // Cloth
+    CLOTH_VIEW_SUCCESS(HttpStatus.OK,"CLOTH_200","옷이 성공적으로 조회되었습니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
