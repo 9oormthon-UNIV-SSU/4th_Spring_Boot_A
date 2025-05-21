@@ -63,4 +63,12 @@ public class ClothResponseDTO {
         private int wearNum;
     }
 
+    // 옷 추가
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothCreateResult {
+        private Long id;
+    }
 }

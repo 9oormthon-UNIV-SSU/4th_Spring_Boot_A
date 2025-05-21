@@ -5,8 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.cloth.domain.converter.ClothConverter;
+import study.goorm.domain.cloth.domain.dto.ClothRequestDTO;
 import study.goorm.domain.cloth.domain.dto.ClothResponseDTO;
+import study.goorm.domain.cloth.domain.entity.Category;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.cloth.domain.entity.ClothImage;
 import study.goorm.domain.cloth.domain.exception.ClothException;
@@ -15,8 +18,7 @@ import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.domain.member.domain.exception.MemberException;
-import study.goorm.domain.cloth.domain.application.ClothImageQueryService;
-
+import study.goorm.domain.cloth.domain.repository.CategoryRepository;
 import study.goorm.domain.model.enums.ClothSort;
 import study.goorm.global.error.code.status.ErrorStatus;
 
@@ -75,5 +77,43 @@ public class ClothServiceImpl implements ClothService {
         Map<Long, String> firstImagesOfCloth = clothImageQueryService.getFirstImageUrlMap(clothes);
 
         return ClothConverter.toMemberClosetResult(member,firstImagesOfCloth,clothes);
+    }
+
+    private final CategoryRepository categoryRepository;
+
+    // 옷 추가
+    @Override
+    @Transactional
+    public ClothResponseDTO.ClothCreateResult createCloth(ClothRequestDTO.ClothCreateRequest clothCreateResult, MultipartFile image) {
+
+        Member member = memberRepository.findById(clothCreateResult.getMemberId())
+                .orElseThrow(()-> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
+
+        Category category = categoryRepository.findById(clothCreateResult.getCategoryId())
+                .orElseThrow(()-> new ClothException(ErrorStatus.NO_SUCH_CATEGORY));
+
+        Cloth newCloth = Cloth.builder()
+                .name(clothCreateResult.getName())
+                .wearNum(0)
+                .season(clothCreateResult.getSeasons())
+                .tempUpperBound(clothCreateResult.getTempUpperBound())
+                .tempLowerBound(clothCreateResult.getTempLowerBound())
+                .thicknessLevel(clothCreateResult.getThicknessLevel())
+                .clothUrl(clothCreateResult.getClothUrl())
+                .brand(clothCreateResult.getBrand())
+                .category(category)
+                .member(member)
+                .build();
+
+        clothRepository.save(newCloth);
+
+        ClothImage newClothImage = ClothImage.builder()
+                .cloth(newCloth)
+                .imageUrl("아직 S3를 구현하지 않아서 url이 없어용")
+                .build();
+
+        clothImageRepository.save(newClothImage);
+
+        return ClothConverter.toClothCreateResult(newCloth);
     }
 }

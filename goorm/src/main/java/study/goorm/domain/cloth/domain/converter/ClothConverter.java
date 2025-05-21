@@ -54,4 +54,11 @@ public class ClothConverter {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    // 옷 추가
+    public static ClothResponseDTO.ClothCreateResult toClothCreateResult(Cloth cloth){
+        return ClothResponseDTO.ClothCreateResult.builder()
+                .id(cloth.getId())
+                .build();
+    }
 }
