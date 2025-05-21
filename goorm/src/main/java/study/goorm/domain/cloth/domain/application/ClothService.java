@@ -15,4 +15,6 @@ public interface ClothService {
     // 옷 추가
     ClothResponseDTO.ClothCreateResult createCloth(ClothRequestDTO.ClothCreateRequest clothCreateResult, MultipartFile image);
 
+    // 옷 삭제
+    void deleteCloth(Long clothId);
 }

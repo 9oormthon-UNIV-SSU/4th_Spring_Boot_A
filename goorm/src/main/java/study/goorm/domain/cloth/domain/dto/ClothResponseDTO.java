@@ -71,4 +71,13 @@ public class ClothResponseDTO {
     public static class ClothCreateResult {
         private Long id;
     }
+
+    // 옷 삭제
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ClothDeleteResult {
+        private Long id;
+    }
 }
