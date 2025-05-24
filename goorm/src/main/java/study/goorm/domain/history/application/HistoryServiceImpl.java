@@ -3,23 +3,45 @@ package study.goorm.domain.history.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.repository.*;
+import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryException;
+import study.goorm.domain.member.domain.entity.Member;
+import study.goorm.domain.member.domain.exception.MemberException;
+import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Service
 @RequiredArgsConstructor
 public class HistoryServiceImpl implements HistoryService{
+    private final MemberRepository memberRepository;
     private final HistoryRepository historyRepository;
     private final CommentRepository commentRepository;
     private final HashtagHistoryRepository hashtagHistoryRepository;
     private final HistoryClothRepository historyClothRepository;
     private final HistoryImageRepository historyImageRepository;
     private final MemberLikeRepository memberLikeRepository;
+    private final HistoryImageQueryService historyImageQueryService;
 
 
+    @Override
+    public HistoryResponseDTO.MontlyHistoryResult getMonthlyHistory(String clokeyId, String month) {
+
+        Member member = memberRepository.findByClokeyId(clokeyId)
+                .orElseThrow(()-> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
+
+        List<History> histories = historyRepository.findAllByMemberIdAndMonth(member.getId(), month);
+
+        Map<Long, String> firstImagesOfHistory = historyImageQueryService.getFirstImageUrlMap(histories);
+
+        return HistoryConverter.toMonthlyHistoryResult(member, firstImagesOfHistory, histories);
+    }
 
     @Override
     @Transactional

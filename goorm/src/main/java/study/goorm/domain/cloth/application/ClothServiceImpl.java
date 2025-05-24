@@ -76,7 +76,7 @@ public class ClothServiceImpl implements ClothService{
 
         Map<Long, String> firstImagesOfCloth = clothImageQueryService.getFirstImageUrlMap(clothes);
 
-        return null;
+        return ClothConverter.toMemberClosetResult(member,firstImagesOfCloth,clothes);
     }
 
     @Override

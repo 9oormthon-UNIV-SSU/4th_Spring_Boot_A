@@ -7,8 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.application.HistoryService;
+import study.goorm.domain.history.domain.entity.History;
+import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
@@ -28,11 +29,11 @@ public class HistoryRestController {
             @Parameter(name = "clokey-id", description = "클로키 유저의 clokey id, query string 입니다."),
             @Parameter(name = "month", description = "기록을 조회할 월(month)입니다. (YYYY-MM)형식")
     })
-    public BaseResponse<ClothResponseDTO.MemberClosetResult> getMonthlyHistory(
+    public BaseResponse<HistoryResponseDTO.MontlyHistoryResult> getMonthlyHistory(
             @RequestParam(value = "clokey-id") String clokeyId,
             @RequestParam String month
     ) {
-        ClothResponseDTO.MemberClosetResult result = HistoryService.getMonthlyHistory(clokeyId, month);
+        HistoryResponseDTO.MontlyHistoryResult result = historyService.getMonthlyHistory(clokeyId, month);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_MONTHLY_SUCCESS, result);
     }
