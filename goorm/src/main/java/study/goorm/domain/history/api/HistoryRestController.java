@@ -26,7 +26,7 @@ public class HistoryRestController {
     })
     @Parameters({
             @Parameter(name = "clokey-id", description = "클로키 유저의 clokey id, query string 입니다."),
-            @Parameter(name = "month", description = "기록을 조회할 월(month)입니다. (YYYY-MM)")
+            @Parameter(name = "month", description = "기록을 조회할 월(month)입니다. (YYYY-MM)형식")
     })
     public BaseResponse<ClothResponseDTO.MemberClosetResult> getMonthlyHistory(
             @RequestParam(value = "clokey-id") String clokeyId,
