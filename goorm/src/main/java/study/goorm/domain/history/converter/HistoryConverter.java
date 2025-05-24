@@ -47,4 +47,31 @@ public class HistoryConverter {
                 .histories(historyDTOs)
                 .build();
     }
+
+    public static HistoryResponseDTO.HistoryDayResult toHistoryDayResult( // 메소드명 변경
+                                                                          History history,
+                                                                          Member authorMember,
+                                                                          List<String> imageUrls,
+                                                                          List<String> hashtags,
+                                                                          List<HistoryResponseDTO.HistoryDayResult.ClothDTO> clothDTOs, // DTO 클래스명 변경
+                                                                          int commentCount,
+                                                                          int likeCount,
+                                                                          boolean liked
+    ) {
+        return HistoryResponseDTO.HistoryDayResult.builder() // DTO 클래스명 변경
+                .memberId(authorMember.getId())
+                .historyId(history.getId())
+                .memberImageUrl(authorMember.getProfileImageUrl())
+                .nickName(authorMember.getNickname())
+                .clokeyId(authorMember.getClokeyId())
+                .contents(history.getContent())
+                .imageUrl(imageUrls)
+                .hashtags(hashtags)
+                .likeCount(likeCount)
+                .commentCount(commentCount)
+                .date(history.getHistoryDate().toString())
+                .cloths(clothDTOs)
+                .liked(liked)
+                .build();
+    }
 }

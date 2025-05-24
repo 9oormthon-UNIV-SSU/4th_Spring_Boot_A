@@ -11,4 +11,6 @@ public interface HistoryImageRepository extends JpaRepository<HistoryImage, Long
 
     @Query("SELECT hi FROM HistoryImage hi JOIN FETCH hi.history h JOIN FETCH h.member m WHERE m.clokeyId = :clokeyId AND FUNCTION('DATE_FORMAT', h.historyDate, '%Y-%m') = :month ORDER BY h.historyDate ASC, hi.id ASC")
     List<HistoryImage> findMonthlyHistoryImagesWithDetails(@Param("clokeyId") String clokeyId, @Param("month") String month);
+
+    List<HistoryImage> findByHistoryId(Long historyId);
 }

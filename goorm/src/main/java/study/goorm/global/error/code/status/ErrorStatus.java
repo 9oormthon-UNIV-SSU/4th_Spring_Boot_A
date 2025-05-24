@@ -31,7 +31,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // history
     NO_SUCH_CLOKEY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 clokeyId 입니다."),
-    WRONG_DATE_FORM(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형태는 YYYY-MM 이어야 합니다.");
+    WRONG_DATE_FORM(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형태는 YYYY-MM 이어야 합니다."),
+    HISTORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "HISTORY_4003", "존재하지 않는 HistoryId 입니다.");
 
 
     private final HttpStatus httpStatus;

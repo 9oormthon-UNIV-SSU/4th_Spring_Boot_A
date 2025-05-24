@@ -17,7 +17,8 @@ public enum SuccessStatus implements BaseCode {
     CLOTH_DELETED(HttpStatus.NO_CONTENT,"CLOTH_202","옷이 성공적으로 삭제되었습니다"),
 
     //history
-    HISTORY_MONTH(HttpStatus.OK, "HISTORY_200", "월별 기록이 성공적으로 조회되었습니다.");
+    HISTORY_MONTH(HttpStatus.OK, "HISTORY_200", "월별 기록이 성공적으로 조회되었습니다."),
+    HISTORY_DAY(HttpStatus.OK, "HISTORY_201", "일별 기록이 성공적으로 조회되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.application.HistoryService;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.global.common.response.BaseResponse;
@@ -37,5 +38,16 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_MONTH, result);
     }
 
+    @GetMapping("/{historyId}")
+    @Operation(summary = "특정 History에 대한 정보를 조회하는 API", description = "Path Variable로 historyId를 던져주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_200", description = "OK, 성공적으로 조회되었습니다."),
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryDayResult> getDailyHistory(
+            @PathVariable(name = "historyId") Long historyId
+    ) {
+        HistoryResponseDTO.HistoryDayResult result = historyService.getDailyHistory(historyId);
 
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAY, result);
+    }
 }
