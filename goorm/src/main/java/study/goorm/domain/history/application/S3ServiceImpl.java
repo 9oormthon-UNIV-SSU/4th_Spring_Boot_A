@@ -16,6 +16,7 @@ import study.goorm.global.error.code.status.ErrorStatus; // 예외 처리용 Err
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder; // URL 디코딩을 위해 임포트
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
@@ -28,19 +29,13 @@ public class S3ServiceImpl implements S3Service{
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    /**
-     * MultipartFile을 S3에 업로드하고, 저장된 파일의 URL을 반환합니다.
-     * @param file 업로드할 MultipartFile
-     * @return 업로드된 파일의 S3 URL
-     * @throws IOException 파일 처리 중 발생할 수 있는 예외
-     */
     public String uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String extension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
-        String objectKey = UUID.randomUUID().toString() + extension; // S3 객체 키 (고유한 파일 이름)
+        String objectKey = UUID.randomUUID() + extension; // S3 객체 키 (고유한 파일 이름)
 
         // 메타데이터 설정 (파일 크기, 콘텐츠 타입 등)
         ObjectMetadata metadata = new ObjectMetadata();
@@ -77,7 +72,7 @@ public class S3ServiceImpl implements S3Service{
             String path = new java.net.URL(fileUrl).getPath();
             // URL 디코딩이 필요할 수 있습니다 (파일 이름에 특수 문자 포함 시)
             // UTF-8로 디코딩, 프로젝트 인코딩에 따라 변경될 수 있음
-            objectKey = URLDecoder.decode(path.substring(path.indexOf('/') + 1), "UTF-8");
+            objectKey = URLDecoder.decode(path.substring(path.indexOf('/') + 1), StandardCharsets.UTF_8);
 
             // 객체 키가 버킷 이름으로 시작하는 경우 제거 (URL 형식에 따라 다름)
             // 예: /your-bucket/your-object-key.jpg -> your-object-key.jpg
