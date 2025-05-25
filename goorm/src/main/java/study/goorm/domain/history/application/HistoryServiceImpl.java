@@ -31,12 +31,15 @@ public class HistoryServiceImpl implements HistoryService{
 
 
     @Override
-    public HistoryResponseDTO.MontlyHistoryResult getMonthlyHistory(String clokeyId, String month) {
+    public HistoryResponseDTO.MonthlyHistoryResult getMonthlyHistory(String clokeyId, String month) {
 
         Member member = memberRepository.findByClokeyId(clokeyId)
                 .orElseThrow(()-> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
 
         List<History> histories = historyRepository.findAllByMemberIdAndMonth(member.getId(), month);
+        if (histories.isEmpty()) {
+            throw new HistoryException(ErrorStatus.BAD_DATE_TYPE);
+        }
 
         Map<Long, String> firstImagesOfHistory = historyImageQueryService.getFirstImageUrlMap(histories);
 

@@ -32,6 +32,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // History
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 기록 ID입니다."),
+    BAD_DATE_TYPE(HttpStatus.BAD_REQUEST, "HISTORY_4001", "잘못된 날짜 형식입니다."),
     NO_HISTORY_IMAGE(HttpStatus.BAD_REQUEST,"HISTORY_4002","기록의 사진이 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;

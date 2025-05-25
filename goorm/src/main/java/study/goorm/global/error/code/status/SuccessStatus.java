@@ -19,6 +19,7 @@ public enum SuccessStatus implements BaseCode {
 
     //History
     HISTORY_MONTHLY_SUCCESS(HttpStatus.OK, "HISTORY_MONTHLY_200", "월별 기록이 성공적으로 조회되었습니다."),
+    HISTORY_DAILY_SUCCESS(HttpStatus.OK, "HISTORY_DAILY_200", "일별 기록이 성공적으로 조회되었습니다."),
     HISTORY_DELETED(HttpStatus.NO_CONTENT, "HISTORY_204", "기록이 성공적으로 삭제되었습니다.");
 
     private final HttpStatus httpStatus;

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.application.HistoryService;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
@@ -29,14 +30,29 @@ public class HistoryRestController {
             @Parameter(name = "clokey-id", description = "클로키 유저의 clokey id, query string 입니다."),
             @Parameter(name = "month", description = "기록을 조회할 월(month)입니다. (YYYY-MM)형식")
     })
-    public BaseResponse<HistoryResponseDTO.MontlyHistoryResult> getMonthlyHistory(
+    public BaseResponse<HistoryResponseDTO.MonthlyHistoryResult> getMonthlyHistory(
             @RequestParam(value = "clokey-id") String clokeyId,
             @RequestParam String month
     ) {
-        HistoryResponseDTO.MontlyHistoryResult result = historyService.getMonthlyHistory(clokeyId, month);
+        HistoryResponseDTO.MonthlyHistoryResult result = historyService.getMonthlyHistory(clokeyId, month);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_MONTHLY_SUCCESS, result);
     }
+
+    @GetMapping("/histories/{history-id}")
+    @Operation(summary = "유저의 일별 기록을 조회하는 API", description = "Path Variable로 historyId를 던져주세요.")
+    @ApiResponses({ // 이 API에서 나올 수 있는 ApiResponse에 대해서 적어주시면 됩니다. (제거해도 되고 성공, 실패 response 모두 작성 가능)
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HiSTORY_DAILY_200", description = "OK, 성공적으로 조회되었습니다."),
+    })
+    public BaseResponse<ClothResponseDTO.ClothEditViewResult> getDailyHistory(
+            @PathVariable(name = "history-id") Long HistoryId // PathVariable을 받겠다는 어노테이션
+            // name 옵션을 통해서 받아서 카멜 케이스에 어울리도록 clothId로 받아줍니다.
+    ) {
+        ClothResponseDTO.ClothEditViewResult result = HistoryService.getDailyHistory(HistoryId);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAILY_SUCCESS, result);
+    }
+
 
     @DeleteMapping("/{history-id}")
     @Operation(summary = "날짜별 옷 기록을 삭제하는 API", description = "path variable로 history_id를 넘겨주세요.")
