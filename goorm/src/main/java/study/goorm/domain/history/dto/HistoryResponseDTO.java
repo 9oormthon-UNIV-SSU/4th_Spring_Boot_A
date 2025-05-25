@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.goorm.domain.history.domain.entity.History;
-import study.goorm.domain.history.domain.entity.HistoryImage;
 
 import java.util.List;
 

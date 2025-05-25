@@ -3,7 +3,6 @@ package study.goorm.domain.history.dto;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.beans.Visibility;
 import java.time.LocalDate;
 import java.util.List;
 

@@ -19,7 +19,6 @@ import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
 import study.goorm.global.exception.GeneralException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
