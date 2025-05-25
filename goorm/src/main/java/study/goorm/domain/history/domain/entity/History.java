@@ -11,7 +11,7 @@ import study.goorm.domain.model.entity.BaseEntity;
 import java.time.LocalDate;
 
 @Entity
-@Getter
+@Getter @Setter
 @Builder
 @DynamicUpdate
 @DynamicInsert

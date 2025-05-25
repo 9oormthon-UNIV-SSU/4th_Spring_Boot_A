@@ -30,10 +30,13 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_SUCH_CATEGORY(HttpStatus.BAD_REQUEST, "CLOTH_4003", "카테고리가 존재하지 않습니다."),
 
     // history
-    NO_SUCH_CLOKEY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 clokeyId 입니다."),
     WRONG_DATE_FORM(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형태는 YYYY-MM 이어야 합니다."),
-    HISTORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "HISTORY_4003", "존재하지 않는 HistoryId 입니다.");
+    HISTORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "HISTORY_4003", "존재하지 않는 HistoryId 입니다."),
 
+    // AWS S3
+    S3_FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_5001", "S3 파일 업로드에 실패했습니다."),
+    S3_FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_5002", "S3 파일 삭제에 실패했습니다."),
+    S3_FILE_URL_PARSE_FAILED(HttpStatus.BAD_REQUEST, "S3_4001", "S3 파일 URL 파싱에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
