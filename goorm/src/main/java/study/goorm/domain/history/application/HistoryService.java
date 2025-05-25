@@ -6,6 +6,7 @@ public interface HistoryService {
 
     HistoryResponseDTO.MonthlyHistoryResult getMonthlyHistory(String clokeyId, String month);
 
-    HistoryResponseDTO.MonthlyHistoryResult getDailyHistory(String HistoryId);
+    HistoryResponseDTO.DailyHistoryResult getDailyHistory(Long historyId);
+
     void deleteHistory(Long historyId);
 }

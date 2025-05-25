@@ -44,11 +44,11 @@ public class HistoryRestController {
     @ApiResponses({ // 이 API에서 나올 수 있는 ApiResponse에 대해서 적어주시면 됩니다. (제거해도 되고 성공, 실패 response 모두 작성 가능)
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HiSTORY_DAILY_200", description = "OK, 성공적으로 조회되었습니다."),
     })
-    public BaseResponse<ClothResponseDTO.ClothEditViewResult> getDailyHistory(
-            @PathVariable(name = "history-id") Long HistoryId // PathVariable을 받겠다는 어노테이션
+    public BaseResponse<HistoryResponseDTO.DailyHistoryResult> getDailyHistory(
+            @PathVariable(name = "history-id") Long historyId // PathVariable을 받겠다는 어노테이션
             // name 옵션을 통해서 받아서 카멜 케이스에 어울리도록 clothId로 받아줍니다.
     ) {
-        ClothResponseDTO.ClothEditViewResult result = HistoryService.getDailyHistory(HistoryId);
+        HistoryResponseDTO.DailyHistoryResult result = HistoryService.getDailyHistory(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAILY_SUCCESS, result);
     }

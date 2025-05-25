@@ -4,16 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
-import study.goorm.domain.cloth.domain.entity.Cloth;
-import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.domain.entity.Hashtag;
+import study.goorm.domain.history.domain.entity.HistoryImage;
 
 import java.awt.*;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class HistoryResponseDTO {
 
@@ -48,12 +43,12 @@ public class HistoryResponseDTO {
         String nickName;
         String clokeyId;
         String contents;
-        List<Image> images;
+        List<HistoryImage> images;
         List<Hashtag> hashtags;
         int likeCount;
         boolean liked;
         String date;
-        List<Cloth> clothes;
+        List<DailyHistoryItemResult> clothes;
         Long clothId;
         Long historyId;
     }
