@@ -8,7 +8,9 @@ import study.goorm.domain.history.domain.entity.Hashtag;
 import study.goorm.domain.history.domain.entity.HistoryImage;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class HistoryResponseDTO {
 
@@ -43,13 +45,22 @@ public class HistoryResponseDTO {
         String nickName;
         String clokeyId;
         String contents;
-        List<HistoryImage> images;
+        List<String> images;
         List<Hashtag> hashtags;
         int likeCount;
         boolean liked;
-        String date;
+        LocalDate date;
         List<DailyHistoryItemResult> clothes;
-        Long clothId;
         Long historyId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DailyHistoryItemResult {
+        Long clothId;
+        String clothName;
+        String clothImageUrl;
     }
 }

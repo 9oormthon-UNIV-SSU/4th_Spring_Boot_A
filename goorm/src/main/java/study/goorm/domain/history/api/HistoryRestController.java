@@ -31,7 +31,7 @@ public class HistoryRestController {
             @Parameter(name = "month", description = "기록을 조회할 월(month)입니다. (YYYY-MM)형식")
     })
     public BaseResponse<HistoryResponseDTO.MonthlyHistoryResult> getMonthlyHistory(
-            @RequestParam(value = "clokey-id") String clokeyId,
+            @RequestParam(value = "clokey-id", required = false) String clokeyId,
             @RequestParam String month
     ) {
         HistoryResponseDTO.MonthlyHistoryResult result = historyService.getMonthlyHistory(clokeyId, month);
@@ -48,7 +48,7 @@ public class HistoryRestController {
             @PathVariable(name = "history-id") Long historyId // PathVariable을 받겠다는 어노테이션
             // name 옵션을 통해서 받아서 카멜 케이스에 어울리도록 clothId로 받아줍니다.
     ) {
-        HistoryResponseDTO.DailyHistoryResult result = HistoryService.getDailyHistory(historyId);
+        HistoryResponseDTO.DailyHistoryResult result = historyService.getDailyHistory(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAILY_SUCCESS, result);
     }
