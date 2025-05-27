@@ -395,4 +395,39 @@ public class HistoryServiceImpl implements HistoryService {
         return HistoryConverter.toHistoryUpdateResult(history);
     }
 
+    @Transactional
+    @Override
+    public void deleteHistory(Long historyId) {
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        // Minio 이미지 삭제 위해 historyImage 조회
+        List<HistoryImage> images = historyImageRepository.findAllByHistory(history);
+        String bucket = "history-image";
+
+        for (HistoryImage hi : images) {
+            String url = hi.getImageUrl();
+            String objectName = url.substring(url.lastIndexOf("/") + 1);
+
+            try {
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(objectName)
+                                .build()
+                );
+            } catch (Exception e) {
+                throw new HistoryException(ErrorStatus.MINIO_DELETE_FAILED);
+            }
+        }
+
+        // 매핑 테이블 삭제
+        historyClothRepository.deleteAllByHistory(history);       // 옷 매핑 삭제
+        hashtagHistoryRepository.deleteAllByHistory(history);     // 해시태그 매핑 삭제
+        historyImageRepository.deleteAllByHistory(history);       // 이미지 DB에서 삭제
+
+        // 해당 기록 삭제
+        historyRepository.delete(history);
+    }
 }

@@ -88,4 +88,20 @@ public class HistoryRestController {
         HistoryResponseDTO.HistoryUpdateResult result = historyService.updateHistory(historyUpdateRequest, imageFile, historyId);
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, result);
     }
+
+    @DeleteMapping("{history-id}")
+    @Operation(summary = "유저의 날짜별 옷 기록을 삭제하는 API", description = "path variable로 history-id를 넘겨주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_202", description = "OK, 성공적으로 삭제되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "history-id", description = "기록 id, path variable 입니다.")
+    })
+    public BaseResponse<Void> deleteHistory(
+            @PathVariable(value = "history-id") Long historyId
+    ) {
+        historyService.deleteHistory(historyId);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
+    }
 }

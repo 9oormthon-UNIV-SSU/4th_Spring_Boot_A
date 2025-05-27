@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface HashtagHistoryRepository extends JpaRepository<HashtagHistory, Long> {
 
+    // History
     List<HashtagHistory> findByHistoryId(Long historyId);
     void deleteByHistory(History history);
-
+    void deleteAllByHistory(History history);
 }

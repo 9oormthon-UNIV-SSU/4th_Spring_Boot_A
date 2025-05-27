@@ -17,4 +17,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     List<History> findHistoriesByMemberIdAndYearMonth(@Param("memberId") Long memberId, @Param("yearMonth") String yearMonth);
 
     History findById(long historyId);
+
+
 }

@@ -78,9 +78,9 @@ public class ClothRestController {
     }
 
     @DeleteMapping("{cloth-id}")
-    @Operation(summary = "특정 옷을 삭제하는 API", description = "path variable로 cloth_id를 넘겨주세요.")
+    @Operation(summary = "특정 옷을 삭제하는 API", description = "path variable로 cloth-id를 넘겨주세요.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_204", description = "OK, 성공적으로 삭제되었습니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_202", description = "OK, 성공적으로 삭제되었습니다."),
     })
     @Parameters({
             @Parameter(name = "cloth-id", description = "옷의 id, path variable 입니다.")
