@@ -7,4 +7,5 @@ import java.time.LocalDate;
 
 public interface HistoryService {
     HistoryResponseDTO.HistoryGetMonthly getHistoryGetMonthly(String clokeyId, LocalDate month);
+    void deleteHistory(Long historyId);
 }

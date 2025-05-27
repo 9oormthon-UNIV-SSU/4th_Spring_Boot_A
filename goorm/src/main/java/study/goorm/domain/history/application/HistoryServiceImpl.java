@@ -9,9 +9,12 @@ import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.entity.HistoryImage;
+import study.goorm.domain.history.domain.repository.HashtagHistoryRepository;
+import study.goorm.domain.history.domain.repository.HistoryClothRepository;
 import study.goorm.domain.history.domain.repository.HistoryImageRepository;
 import study.goorm.domain.history.domain.repository.HistoryRepository;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
+import study.goorm.domain.history.exception.HistoryExeption;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
@@ -29,6 +32,9 @@ public class HistoryServiceImpl implements HistoryService {
     private final HistoryRepository historyRepository;
     private final HistoryImageRepository historyImageRepository;
     private final MemberRepository memberRepository;
+    private final HashtagHistoryRepository hashtagHistoryRepository;
+    private final HistoryClothRepository historyClothRepository;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -47,5 +53,20 @@ public class HistoryServiceImpl implements HistoryService {
         List<HistoryImage> historyImages = historyImageRepository.findAllByHistoryIdIn(historyIds);
 
         return HistoryConverter.toHistoryGetMonthly(member, month, histories, historyImages);
+    }
+
+    @Override
+    @Transactional
+    public void deleteHistory(Long historyId) {
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+
+        //매핑 테이블 삭제
+        hashtagHistoryRepository.deleteByHistory(history);
+        historyImageRepository.deleteByHistory(history);
+        historyClothRepository.deleteByHistory(history);
+
+        //최종 옷 삭제
+        historyRepository.delete(history);
     }
 }
