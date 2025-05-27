@@ -1,12 +1,14 @@
 package study.goorm.domain.history.converter;
 
+import study.goorm.domain.cloth.domain.entity.Cloth;
+import study.goorm.domain.history.domain.entity.Hashtag;
 import study.goorm.domain.history.domain.entity.History;
+import study.goorm.domain.history.domain.entity.HistoryImage;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.member.domain.entity.Member;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class HistoryConverter {
 
@@ -19,6 +21,29 @@ public class HistoryConverter {
                 .build();
     }
 
+    public static HistoryResponseDTO.DailyHistoryPreview toDailyHistoryPreview(
+            Member member,
+            History history,
+            List<String> images,
+            List<String> hashtags,
+            long commentCount,
+            List<HistoryResponseDTO.DailyHistoryClothesPreview> cloths
+    ) {
 
+        return HistoryResponseDTO.DailyHistoryPreview.builder()
+                .memberId(member.getId())
+                .historyId(history.getId())
+                .memberImageUrl(member.getProfileImageUrl())
+                .nickName(member.getNickname())
+                .clokeyId(member.getClokeyId())
+                .contents(history.getContent())
+                .imageUrl(images)
+                .hashtags(hashtags)
+                .likeCount(history.getLikes())
+                .commentCount(commentCount)
+                .date(history.getHistoryDate())
+                .cloths(cloths)
+                .build();
+    }
 
 }

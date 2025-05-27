@@ -16,4 +16,5 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
             "WHERE h.member.id = :memberId AND FUNCTION('DATE_FORMAT', h.historyDate, '%Y-%m') = :yearMonth")
     List<History> findHistoriesByMemberIdAndYearMonth(@Param("memberId") Long memberId, @Param("yearMonth") String yearMonth);
 
+    History findById(long historyId);
 }

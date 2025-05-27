@@ -28,8 +28,8 @@ public enum ErrorStatus implements BaseErrorCode{
     PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST, "PAGE_4002", "페이지 사이즈는 1이상으로 입력해야 합니다."),
 
     // History
-    NO_SUCH_MONTHLY_DATE(HttpStatus.BAD_REQUEST, "HISTORY_4001", "월별 기록이 존재하지 않습니다."),
-    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "월별 날짜 형식이 맞지 않습니다.");
+    NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "기록이 존재하지 않습니다."),
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형식이 맞지 않습니다.");
 
 
 

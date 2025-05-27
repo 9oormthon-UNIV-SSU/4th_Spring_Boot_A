@@ -4,12 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.goorm.domain.history.domain.entity.History;
-import study.goorm.domain.history.domain.entity.HistoryImage;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public class HistoryResponseDTO {
 
@@ -33,5 +30,34 @@ public class HistoryResponseDTO {
         private String imageUrl;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DailyHistoryPreview {
+
+        private Long memberId;
+        private Long historyId;
+        private String memberImageUrl;
+        private String nickName;
+        private String clokeyId;
+        private String contents;
+        private List<String> imageUrl;
+        private List<String> hashtags;
+        private long likeCount;
+        private long commentCount;
+        private LocalDate date;
+        private List<DailyHistoryClothesPreview> cloths;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DailyHistoryClothesPreview {
+        private Long clothId;
+        private String clothImageUrl;
+        private String clothName;
+    }
 
 }

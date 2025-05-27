@@ -9,4 +9,5 @@ public interface HistoryService {
 
     HistoryResponseDTO.MonthlyHistoryPreview getMonthlyPreview(String clokeyId, String date);
 
+    HistoryResponseDTO.DailyHistoryPreview getDailyPreview(Long historyId);
 }
