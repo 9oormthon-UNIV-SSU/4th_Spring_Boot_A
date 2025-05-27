@@ -77,7 +77,7 @@ public class ClothRestController {
         return BaseResponse.onSuccess(SuccessStatus.CLOTH_CREATED, result);
     }
 
-    @DeleteMapping("{cloth-id")
+    @DeleteMapping("{cloth-id}")
     @Operation(summary = "특정 옷을 삭제하는 API", description = "path variable로 cloth_id를 넘겨주세요.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CLOTH_204", description = "OK, 성공적으로 삭제되었습니다."),
