@@ -29,8 +29,12 @@ public enum ErrorStatus implements BaseErrorCode{
 
     // History
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "기록이 존재하지 않습니다."),
-    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형식이 맞지 않습니다.");
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형식이 맞지 않습니다."),
+    NO_SUCH_HASHTAG(HttpStatus.BAD_REQUEST, "HISTORY_4003", "해당 해시태그가 존재하지 않습니다."),
 
+    // MINIO
+    MINIO_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "MINIO_4001", "이미지 업로드에 실패했습니다."),
+    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "MINIO_4002", "이미지는 10장 이하로 업로드 가능합니다.");
 
 
     private final HttpStatus httpStatus;

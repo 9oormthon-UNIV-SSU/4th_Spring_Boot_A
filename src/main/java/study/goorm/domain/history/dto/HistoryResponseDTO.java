@@ -60,4 +60,12 @@ public class HistoryResponseDTO {
         private String clothName;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCreateResult {
+
+        private Long historyId;
+    }
 }

@@ -46,4 +46,10 @@ public class HistoryConverter {
                 .build();
     }
 
+    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history) {
+        return HistoryResponseDTO.HistoryCreateResult.builder()
+                .historyId(history.getId())
+                .build();
+    }
+
 }
