@@ -3,22 +3,30 @@ package study.goorm.domain.history.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.cloth.application.ClothImageQueryService;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.cloth.domain.entity.ClothImage;
 import study.goorm.domain.cloth.domain.repository.ClothImageRepository;
+import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.*;
 import study.goorm.domain.history.domain.repository.*;
+import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryException;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -35,6 +43,8 @@ public class HistoryServiceImpl implements HistoryService{
     private final HistoryImageQueryService historyImageQueryService;
     private final ClothImageRepository clothImageRepository;
     private final ClothImageQueryService clothImageQueryService;
+    private final ClothRepository clothRepository;
+    private final HashtagRepository hashtagRepository;
 
 
     @Override
@@ -96,6 +106,68 @@ public class HistoryServiceImpl implements HistoryService{
         Map<Long, String> firstImagesOfCloth = clothImageQueryService.getFirstImageUrlMap(clothes);
 
         return HistoryConverter.toDailyHistoryResult(history, member, liked, historyImageUrls, hashtags, clothes, firstImagesOfCloth);
+    }
+
+    @Override
+    @Transactional
+    public void createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
+        // 이미지 업로드 개수 제한
+        if (imageFiles.size() >= 10) {
+            throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
+        }
+
+        // 날짜 형식이 맞는지 검사
+        try {
+            LocalDate.parse(historyCreateRequest.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            throw new HistoryException(ErrorStatus.BAD_DATE_TYPE);
+        }
+        LocalDate date = LocalDate.parse(historyCreateRequest.getDate()); // LocalDate 형식으로 변환
+
+        // member 1번이 로그인 한 유저라고 가정
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        // 옷이 중복되는지 검사
+        List<Long> clothesList = historyCreateRequest.getClothes();
+        Set<Long> set = new HashSet<>(clothesList);
+        if (clothesList.size() != set.size()) throw new HistoryException(ErrorStatus.CLOTHES_NOT_UNIQUE);
+
+        // 해시태그가 중복되는지 검사
+        List<String> hashtagsList = historyCreateRequest.getHashtags();
+        Set<String> set2 = new HashSet<>(hashtagsList);
+        if (hashtagsList.size() != set2.size()) throw new HistoryException(ErrorStatus.HASHTAGS_NOT_UNIQUE);
+
+        // 각 옷의 WearNum + 1 씩 해줌
+        // (트랜잭션(@Transactional)안에서 실행시  JPA가 변경 감지(Dirty Checking)해서 자동으로 DB에 반영
+        List<Cloth> clothes = clothRepository.findAllById(clothesList);
+        for(Cloth c : clothes) {
+            c.setWearNum(c.getWearNum() + 1);
+        }
+
+        // history테이블에 저장
+        History newHistory = History.builder()
+                .content(historyCreateRequest.getContent())
+                .historyDate(date)
+                .likes(0)
+                .member(member)
+                .build();
+        historyRepository.save(newHistory);
+
+        // DB에 존재하는 해시태그 조회
+        List<Hashtag> existingHashtags = hashtagRepository.findAllByNameIn((historyCreateRequest.getHashtags());
+        Set<String> existingTagNames = existingHashtags.stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toSet());
+
+        // 없는 해시태그 추출
+        List<Hashtag> newHashtags = historyCreateRequest.getHashtags().stream()
+                .filter(tag -> !existingTagNames.contains(tag))
+                .map(tag -> Hashtag.builder().name(tag).build())
+                .toList();
+        // 새 해시태그 저장
+        hashtagRepository.saveAll(newHashtags);
+
     }
 
     @Override

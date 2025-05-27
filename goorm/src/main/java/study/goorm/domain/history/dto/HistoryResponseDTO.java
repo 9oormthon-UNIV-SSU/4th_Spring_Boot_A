@@ -63,4 +63,13 @@ public class HistoryResponseDTO {
         String clothName;
         String clothImageUrl;
     }
+
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCreateResult {
+        private Long id;
+    }
 }

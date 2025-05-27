@@ -4,13 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.application.HistoryService;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
+import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
@@ -53,8 +58,22 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAILY_SUCCESS, result);
     }
 
+    @PostMapping(value = "/histories", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "새로운 기록을 생성하는 API", description = "request body에 HistoryCreateRequest 형식의 데이터를 전달해주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),
+    })
+    public BaseResponse<ClothResponseDTO.ClothCreateResult> createCloth(
+            @RequestPart("historyCreateRequest") @Valid HistoryRequestDTO.HistoryCreateRequest historyCreateRequest,
+            @RequestPart("imageFile") List<MultipartFile> imageFiles
+    ) {
+        HistoryResponseDTO.HistoryCreateResult result = historyService.createHistory(historyCreateRequest, imageFiles);
 
-    @DeleteMapping("/{history-id}")
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, result);
+    }
+
+
+    @DeleteMapping("/histories/{history-id}")
     @Operation(summary = "날짜별 옷 기록을 삭제하는 API", description = "path variable로 history_id를 넘겨주세요.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "History_204", description = "OK, 기록이 성공적으로 삭제되었습니다."),
