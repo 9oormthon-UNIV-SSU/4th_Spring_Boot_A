@@ -37,4 +37,10 @@ public class HistoryConverter {
                 .imageUrl(historyImage != null ? historyImage.getImageUrl() : "비공개입니다")
                 .build();
     }
+
+    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
+        return HistoryResponseDTO.HistoryCreateResult.builder()
+                .historyId(history.getId())
+                .build();
+    }
 }

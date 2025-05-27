@@ -5,14 +5,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.cloth.domain.entity.Cloth;
+import study.goorm.domain.cloth.domain.repository.ClothRepository;
+import study.goorm.domain.cloth.exception.ClothException;
 import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.History;
+import study.goorm.domain.history.domain.entity.HistoryCloth;
 import study.goorm.domain.history.domain.entity.HistoryImage;
 import study.goorm.domain.history.domain.repository.HashtagHistoryRepository;
 import study.goorm.domain.history.domain.repository.HistoryClothRepository;
 import study.goorm.domain.history.domain.repository.HistoryImageRepository;
 import study.goorm.domain.history.domain.repository.HistoryRepository;
+import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryExeption;
 import study.goorm.domain.member.domain.entity.Member;
@@ -34,6 +39,7 @@ public class HistoryServiceImpl implements HistoryService {
     private final MemberRepository memberRepository;
     private final HashtagHistoryRepository hashtagHistoryRepository;
     private final HistoryClothRepository historyClothRepository;
+    private final ClothRepository clothRepository;
 
 
     @Override
@@ -68,5 +74,28 @@ public class HistoryServiceImpl implements HistoryService {
 
         //최종 옷 삭제
         historyRepository.delete(history);
+    }
+
+    @Override
+    public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, MultipartFile image) {
+        List<Cloth> cloth = clothRepository.findAllById(historyCreateResult.getClothes());
+        if (cloth.isEmpty()) {
+            throw new ClothException(ErrorStatus.NO_SUCH_CLOTH);
+        }
+
+
+        History newHistory = History.builder()
+                .historyDate(LocalDate.parse(historyCreateResult.getDate()))
+                .content(historyCreateResult.getContent())
+                .build();
+        HistoryImage newHistoryImage = HistoryImage.builder()
+                .history(newHistory)
+                .imageUrl("url")
+                .build();
+
+        historyImageRepository.save(newHistoryImage);
+
+
+        return HistoryConverter.toHistoryCreateResult(newHistory);
     }
 }

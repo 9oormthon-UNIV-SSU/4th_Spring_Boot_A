@@ -27,4 +27,12 @@ public class HistoryResponseDTO {
         private LocalDate date;
         private String imageUrl;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCreateResult {
+        private Long historyId;
+    }
 }
