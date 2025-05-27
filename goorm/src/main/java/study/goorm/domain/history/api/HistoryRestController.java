@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +14,7 @@ import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.application.HistoryService;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
+import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.model.enums.ClothSort;
 import study.goorm.domain.model.exception.annotation.CheckPage;
 import study.goorm.domain.model.exception.annotation.CheckPageSize;
@@ -75,5 +77,23 @@ public class HistoryRestController {
         HistoryResponseDTO.HistoryCreateResult result = historyService.createHistory(historyCreateRequest,imageFile);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, result);
+    }
+
+    @PatchMapping(value = "/{historyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "특정날짜 옷 기록을 수정하는 API", description = "path variable로 historyId를 넘겨주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_203", description = "OK, 기록이 성공적으로 수정되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "historyId", description = "기록의 id, path variable 입니다."),
+    })
+    public BaseResponse<ClothResponseDTO.ClothCreateResult> patchHistory(
+            @PathVariable Long historyId,
+            @RequestPart("historyUpdateRequest") @Valid HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        historyService.updateHistory(historyId, historyUpdateRequest, imageFile);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, null);
     }
 }

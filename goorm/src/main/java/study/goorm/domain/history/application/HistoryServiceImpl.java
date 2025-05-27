@@ -77,6 +77,7 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
+    @Transactional
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, MultipartFile image) {
         List<Cloth> cloth = clothRepository.findAllById(historyCreateResult.getClothes());
         if (cloth.isEmpty()) {
@@ -97,5 +98,10 @@ public class HistoryServiceImpl implements HistoryService {
 
 
         return HistoryConverter.toHistoryCreateResult(newHistory);
+    }
+
+    @Override
+    public HistoryResponseDTO.HistoryCreateResult updateHistory(Long historyId, HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest, MultipartFile image) {
+        return null;
     }
 }
