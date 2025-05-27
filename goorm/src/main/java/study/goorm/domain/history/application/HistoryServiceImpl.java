@@ -62,6 +62,12 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.HistoryGetDaily getHistoryGetDaily(Long historyId) {
+        return null;
+    }
+
+    @Override
     @Transactional
     public void deleteHistory(Long historyId) {
         History history = historyRepository.findById(historyId)

@@ -18,6 +18,12 @@ public class HistoryConverter {
                 .build();
     }
 
+    public static HistoryResponseDTO.HistoryGetDaily toHistoryGetDaily(History history, HistoryImage historyImage){
+        return HistoryResponseDTO.HistoryGetDaily.builder()
+
+                .build();
+    }
+
     private static List<HistoryResponseDTO.HistoryGet> toHistoryGetList(List<History> histories, List<HistoryImage> historyImages) {
         return histories.stream()
                 .map(history -> {
