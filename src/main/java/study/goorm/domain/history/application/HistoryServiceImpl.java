@@ -1,9 +1,6 @@
 package study.goorm.domain.history.application;
 
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +17,9 @@ import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,7 +135,7 @@ public class HistoryServiceImpl implements HistoryService {
                 .toList();
 
 
-        return HistoryConverter.toDailyHistoryPreview(member, history,images, hashtagNameList, commentCount,clothPreviews);
+        return HistoryConverter.toDailyHistoryPreview(member, history, images, hashtagNameList, commentCount, clothPreviews);
     }
 
     // 날짜별 옷 기록 추가
@@ -178,16 +171,6 @@ public class HistoryServiceImpl implements HistoryService {
             }
         }
 
-        // hashtagName 검증
-        List<String> requestedTags = historyCreateRequest.getHashtags();
-
-        for (String tagName : requestedTags) {
-            boolean exists = hashtagRepository.existsByName(tagName);
-            if (!exists) {
-                throw new HistoryException(ErrorStatus.NO_SUCH_HASHTAG);
-            }
-        }
-
         // ClothId 기록
         List<Cloth> clothes = clothRepository.findAllById(requestedIds);
 
@@ -200,17 +183,37 @@ public class HistoryServiceImpl implements HistoryService {
 
         historyClothRepository.saveAll(historyClothes);
 
-        // Hashtag 기록
-        List<Hashtag> hashtags = hashtagRepository.findAllByNameIn(requestedTags);
+        List<String> requestedTags = historyCreateRequest.getHashtags();
 
-        List<HashtagHistory> hashtagHistories = hashtags.stream()
+        // DB에 존재하는 해시태그 조회
+        List<Hashtag> existingHashtags = hashtagRepository.findAllByNameIn(requestedTags);
+        Set<String> existingTagNames = existingHashtags.stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toSet());
+
+        // 없는 해시태그 추출
+        List<Hashtag> newHashtags = requestedTags.stream()
+                .filter(tag -> !existingTagNames.contains(tag))
+                .map(tag -> Hashtag.builder().name(tag).build())
+                .toList();
+
+        // 새 해시태그 저장
+        hashtagRepository.saveAll(newHashtags);
+
+        // 기존 + 신규 해시태그 합치기
+        List<Hashtag> allHashtags = new ArrayList<>();
+        allHashtags.addAll(existingHashtags);
+        allHashtags.addAll(newHashtags);
+
+        // HashtagHistory 저장
+        List<HashtagHistory> hashtagHistories = allHashtags.stream()
                 .map(tag -> HashtagHistory.builder()
                         .hashtag(tag)
                         .history(history)
                         .build())
                 .toList();
-
         hashtagHistoryRepository.saveAll(hashtagHistories);
+
 
         // MinIO 업로드
         for (MultipartFile images : image) {
@@ -252,4 +255,144 @@ public class HistoryServiceImpl implements HistoryService {
 
         return HistoryConverter.toHistoryCreateResult(history);
     }
+
+    // 날짜별 옷 기록 수정
+    @Transactional
+    @Override
+    public HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest request, List<MultipartFile> images, Long historyId) {
+
+        if (images.size() >= 10) {
+            throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
+        }
+
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        // 기존 히스토리 조회
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        // content & visibility 수정
+        history.update(request.getContent());
+
+        // 기존 clothes & hashtag 관계 삭제
+        historyClothRepository.deleteByHistory(history); // custom deleteByHistory
+        hashtagHistoryRepository.deleteByHistory(history); // custom deleteByHistory
+
+        // 새로운 clothes 저장
+        List<Long> clothIds = request.getClothes();
+        List<Cloth> clothes = clothRepository.findAllById(clothIds);
+
+        List<HistoryCloth> historyClothes = clothes.stream()
+                .map(cloth -> HistoryCloth.builder()
+                        .history(history)
+                        .cloth(cloth)
+                        .build())
+                .toList();
+        historyClothRepository.saveAll(historyClothes);
+
+        // 새로운 해시태그 저장 (새로운 해시태그 생성 포함)
+        List<String> tagNames = request.getHashtags();
+
+        List<Hashtag> existingTags = hashtagRepository.findAllByNameIn(tagNames);
+        Set<String> existingTagNames = existingTags.stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toSet());
+
+        List<Hashtag> newTags = tagNames.stream()
+                .filter(name -> !existingTagNames.contains(name))
+                .map(name -> Hashtag.builder().name(name).build())
+                .toList();
+
+        hashtagRepository.saveAll(newTags);
+
+        List<Hashtag> allTags = new ArrayList<>();
+        allTags.addAll(existingTags);
+        allTags.addAll(newTags);
+
+        List<HashtagHistory> hashtagHistories = allTags.stream()
+                .map(tag -> HashtagHistory.builder()
+                        .hashtag(tag)
+                        .history(history)
+                        .build())
+                .toList();
+
+        hashtagHistoryRepository.saveAll(hashtagHistories);
+
+        // 기존 이미지 삭제
+        List<HistoryImage> existingImages = historyImageRepository.findAllByHistory(history);
+
+        // MinIO에서도 삭제
+        for (HistoryImage hi : existingImages) {
+            String url = hi.getImageUrl();
+            String bucket = "history-image";
+
+            // objectName 추출
+            String objectName = null;
+            try {
+                objectName = url.substring(url.lastIndexOf("/") + 1);
+            } catch (Exception ex) {
+                System.err.println("❌ URL에서 objectName 추출 실패: " + url);
+                continue;
+            }
+
+            // MinIO에서 삭제 시도
+            try {
+                System.out.println("🗑️ MinIO 삭제 시도: " + objectName);
+
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(objectName)
+                                .build()
+                );
+
+                System.out.println("✅ 삭제 성공: " + objectName);
+            } catch (Exception e) {
+                System.err.println("❌ 삭제 실패: " + objectName + ", 이유: " + e.getMessage());
+                throw new HistoryException(ErrorStatus.MINIO_DELETE_FAILED); // 정의 필요
+            }
+        }
+
+
+        // DB에서 HistoryImage 삭제
+        historyImageRepository.deleteAllByHistory(history);
+
+        // 새 이미지 업로드 및 저장
+        for (MultipartFile file : images) {
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String bucket = "history-image";
+
+            try {
+                if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+                    minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+                }
+
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(fileName)
+                                .stream(file.getInputStream(), file.getSize(), -1)
+                                .contentType(file.getContentType())
+                                .build()
+                );
+
+                String imageUrl = "http://localhost:9000/" + bucket + "/" + fileName;
+
+                HistoryImage newImage = HistoryImage.builder()
+                        .history(history)
+                        .imageUrl(imageUrl)
+                        .build();
+
+                historyImageRepository.save(newImage);
+
+            } catch (Exception e) {
+                throw new HistoryException(ErrorStatus.MINIO_UPLOAD_FAILED);
+            }
+        }
+
+
+        return HistoryConverter.toHistoryUpdateResult(history);
+    }
+
 }

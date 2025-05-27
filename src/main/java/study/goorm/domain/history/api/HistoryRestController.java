@@ -73,4 +73,19 @@ public class HistoryRestController {
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, result);
     }
+
+    // 날짜별 옷 수정
+    @PatchMapping(value = "{history-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "유저의 날짜별 옷의 기록을 수정하는 API", description = "request body에 HistoryUpdateRequest 형식의 데이터를 전달해주시고, path variable을 통해 history-id를 던져주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_200", description = "OK, 성공적으로 수정되었습니다."),
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryUpdateResult> updateHistory(
+            @RequestPart("historyUpdateRequest") @Valid HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest,
+            @RequestPart("imageFile") List<MultipartFile> imageFile,
+            @PathVariable("history-id") Long historyId
+    ) {
+        HistoryResponseDTO.HistoryUpdateResult result = historyService.updateHistory(historyUpdateRequest, imageFile, historyId);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, result);
+    }
 }

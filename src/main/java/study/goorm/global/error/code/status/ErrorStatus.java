@@ -34,7 +34,8 @@ public enum ErrorStatus implements BaseErrorCode{
 
     // MINIO
     MINIO_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "MINIO_4001", "이미지 업로드에 실패했습니다."),
-    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "MINIO_4002", "이미지는 10장 이하로 업로드 가능합니다.");
+    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "MINIO_4002", "이미지는 10장 이하로 업로드 가능합니다."),
+    MINIO_DELETE_FAILED(HttpStatus.BAD_REQUEST, "MINIO_4003", "이미지 삭제에 실패했습니다.");
 
 
     private final HttpStatus httpStatus;

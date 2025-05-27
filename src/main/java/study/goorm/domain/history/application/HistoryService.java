@@ -14,4 +14,6 @@ public interface HistoryService {
     HistoryResponseDTO.DailyHistoryPreview getDailyPreview(Long historyId);
 
     HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFile);
+
+    HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest, List<MultipartFile> imageFile, Long historyId);
 }

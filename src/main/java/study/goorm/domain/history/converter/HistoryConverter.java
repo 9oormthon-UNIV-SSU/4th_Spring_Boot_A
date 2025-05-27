@@ -52,4 +52,9 @@ public class HistoryConverter {
                 .build();
     }
 
+    public static HistoryResponseDTO.HistoryUpdateResult toHistoryUpdateResult(History history) {
+        return HistoryResponseDTO.HistoryUpdateResult.builder()
+                .historyId(history.getId())
+                .build();
+    }
 }

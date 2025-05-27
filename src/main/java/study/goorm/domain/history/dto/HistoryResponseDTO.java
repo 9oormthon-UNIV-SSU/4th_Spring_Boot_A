@@ -68,4 +68,13 @@ public class HistoryResponseDTO {
 
         private Long historyId;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryUpdateResult {
+
+        private Long historyId;
+    }
 }
