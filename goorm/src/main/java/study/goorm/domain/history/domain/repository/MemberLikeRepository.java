@@ -7,4 +7,5 @@ import study.goorm.domain.member.domain.entity.Member;
 
 public interface MemberLikeRepository extends JpaRepository<MemberLike, Long>{
     boolean existsByHistoryAndMember(History history, Member member);
+    void deleteAllByHistory(History history);
 }

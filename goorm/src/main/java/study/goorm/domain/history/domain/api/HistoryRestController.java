@@ -83,7 +83,18 @@ public class HistoryRestController {
             @RequestPart("image") List<MultipartFile> imageFiles
     ) {
         historyService.updateHistory(historyId, metadata, imageFiles);
-        return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
+    }
+
+    @DeleteMapping("/{historyId}")
+    @Operation(summary = "날짜별 옷 기록 삭제 API", description = "해당 ID의 기록을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "HISTORY_200", description = "기록이 성공적으로 삭제되었습니다."),
+            @ApiResponse(responseCode = "HISTORY_4002", description = "존재하지 않는 기록 ID 입니다.")
+    })
+    public BaseResponse<Void> deleteHistory(@PathVariable Long historyId) {
+        historyService.deleteHistory(historyId);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
     }
 
 

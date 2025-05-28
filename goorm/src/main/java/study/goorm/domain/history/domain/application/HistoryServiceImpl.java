@@ -33,6 +33,7 @@ public class HistoryServiceImpl implements HistoryService {
     private final HistoryImageRepository historyImageRepository;
     private final HistoryConverter historyConverter;
     private final MemberService memberService;
+    private final CommentRepository commentRepository;
 
 
     @Override
@@ -240,5 +241,38 @@ public class HistoryServiceImpl implements HistoryService {
         history.setContent(request.getContent());
         historyRepository.save(history);
     }
+
+
+    @Transactional
+    @Override
+    public void deleteHistory(Long historyId) {
+        Member member = memberService.getCurrentMember();
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        if (!history.getMember().getId().equals(member.getId())) {
+            throw new HistoryException(ErrorStatus.NO_GRANT_HISTORY);
+        }
+
+        historyImageRepository.deleteAllByHistory(history);
+
+        hashtagHistoryRepository.deleteAllByHistory(history);
+
+        memberLikeRepository.deleteAllByHistory(history);
+
+        commentRepository.deleteAllByHistory(history);
+
+        List<HistoryCloth> mappings = historyClothRepository.findAllByHistory(history);
+        for (HistoryCloth hc : mappings) {
+            Cloth cloth = hc.getCloth();
+            cloth.setWearNum(Math.max(0, cloth.getWearNum() - 1));
+            clothRepository.save(cloth);
+        }
+        historyClothRepository.deleteAll(mappings);
+
+        historyRepository.delete(history);
+    }
+
 
 }

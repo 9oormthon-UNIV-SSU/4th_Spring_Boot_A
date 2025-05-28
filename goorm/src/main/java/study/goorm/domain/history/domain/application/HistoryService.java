@@ -16,4 +16,6 @@ public interface HistoryService {
 
     void updateHistory(Long historyId, HistoryRequestDTO.HistoryUpdateRequest request, List<MultipartFile> imageFiles);
 
+    void deleteHistory(Long historyId);
+
 }
