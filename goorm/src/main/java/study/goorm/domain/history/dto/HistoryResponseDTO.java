@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import study.goorm.domain.history.domain.entity.HistoryImage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,9 +39,10 @@ public class HistoryResponseDTO {
         private String nickName;
         private String clokeyId;
         private String content;
-        private List<String> images;
+        private List<HistoryImage> images;
         private List<String> hashtags;
         private int likeCount;
+        private int commentCount;
         private boolean liked;
         private LocalDate date;
         private List<HistoryGetCloth> clothes;

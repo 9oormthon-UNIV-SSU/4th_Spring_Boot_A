@@ -8,10 +8,7 @@ import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.cloth.exception.ClothException;
 import study.goorm.domain.history.converter.HistoryConverter;
-import study.goorm.domain.history.domain.entity.Hashtag;
-import study.goorm.domain.history.domain.entity.HashtagHistory;
-import study.goorm.domain.history.domain.entity.History;
-import study.goorm.domain.history.domain.entity.HistoryImage;
+import study.goorm.domain.history.domain.entity.*;
 import study.goorm.domain.history.domain.repository.*;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
@@ -59,7 +56,20 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional(readOnly = true)
     public HistoryResponseDTO.HistoryGetDaily getHistoryGetDaily(Long historyId) {
-        return null;
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+        Member member = history.getMember();
+        List<HistoryImage> images = historyImageRepository.findAllByHistory(history);
+        List<HashtagHistory> hashtagHistories = hashtagHistoryRepository.findAllByHistory(history);
+        List<String> hashtags = hashtagHistories.stream()
+                .map(h -> "#" + h.getHashtag().getName())
+                .toList();
+        List<HistoryCloth> historyCloths = historyClothRepository.findAllByHistory(history);
+        List<Cloth> cloths = historyCloths.stream()
+                .map(HistoryCloth::getCloth)
+                .toList();
+
+        return HistoryConverter.toHistoryGetDaily(history,images, member, hashtags, cloths);
     }
 
     @Override

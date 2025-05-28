@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface HistoryImageRepository extends JpaRepository<HistoryImage, Long>{
     List<HistoryImage> findAllByHistoryIdIn(List<Long> historyIds);
+    List<HistoryImage> findAllByHistory(History history);
     void deleteByHistory(History history);
 }

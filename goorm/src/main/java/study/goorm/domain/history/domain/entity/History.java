@@ -31,6 +31,10 @@ public class History extends BaseEntity {
     @Column(nullable = false, columnDefinition = "integer default 0")
     private int likes;
 
+    @Min(0)
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int comments;
+
     @Column(length = 200)
     @Setter
     private String content;
