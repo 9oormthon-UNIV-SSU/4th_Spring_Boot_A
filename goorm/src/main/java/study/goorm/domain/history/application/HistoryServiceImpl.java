@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.cloth.application.ClothImageQueryService;
 import study.goorm.domain.cloth.domain.entity.Cloth;
-import study.goorm.domain.cloth.domain.entity.ClothImage;
 import study.goorm.domain.cloth.domain.repository.ClothImageRepository;
 import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.history.converter.HistoryConverter;
@@ -23,10 +22,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -93,6 +89,10 @@ public class HistoryServiceImpl implements HistoryService{
                 .map(HashtagHistory::getHashtag)
                 .collect(Collectors.toList());
 
+        List<String> hashtagNames = hashtags.stream()
+                .map(Hashtag::getName)
+                .toList();
+
         // memberId = 1로 구현
         boolean liked = memberLikeRepository.existsByHistoryIdAndMemberId(historyId, 1L);
 
@@ -105,15 +105,18 @@ public class HistoryServiceImpl implements HistoryService{
         // 각 옷의 첫번째 사진만 가져옴
         Map<Long, String> firstImagesOfCloth = clothImageQueryService.getFirstImageUrlMap(clothes);
 
-        return HistoryConverter.toDailyHistoryResult(history, member, liked, historyImageUrls, hashtags, clothes, firstImagesOfCloth);
+        return HistoryConverter.toDailyHistoryResult(history, member, liked, historyImageUrls, hashtagNames, clothes, firstImagesOfCloth);
     }
 
     @Override
     @Transactional
-    public void createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
+    public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
+
         // 이미지 업로드 개수 제한
         if (imageFiles.size() >= 10) {
             throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
+        } else if (imageFiles.size() == 0) {
+            throw new HistoryException(ErrorStatus.NO_IMAGE_SENT);
         }
 
         // 날짜 형식이 맞는지 검사
@@ -155,7 +158,7 @@ public class HistoryServiceImpl implements HistoryService{
         historyRepository.save(newHistory);
 
         // DB에 존재하는 해시태그 조회
-        List<Hashtag> existingHashtags = hashtagRepository.findAllByNameIn((historyCreateRequest.getHashtags());
+        List<Hashtag> existingHashtags = hashtagRepository.findAllByNameIn((historyCreateRequest.getHashtags()));
         Set<String> existingTagNames = existingHashtags.stream()
                 .map(Hashtag::getName)
                 .collect(Collectors.toSet());
@@ -167,6 +170,21 @@ public class HistoryServiceImpl implements HistoryService{
                 .toList();
         // 새 해시태그 저장
         hashtagRepository.saveAll(newHashtags);
+        // 기존 + 신규 해시태그 합치기
+        List<Hashtag> allHashtags = new ArrayList<>();
+        allHashtags.addAll(existingHashtags);
+        allHashtags.addAll(newHashtags);
+
+        // HashtagHistory 저장
+        List<HashtagHistory> hashtagHistories = allHashtags.stream()
+                .map(tag -> HashtagHistory.builder()
+                        .hashtag(tag)
+                        .history(newHistory)
+                        .build())
+                .toList();
+        hashtagHistoryRepository.saveAll(hashtagHistories);
+
+        return HistoryConverter.toHistoryCreateResult(newHistory);
 
     }
 

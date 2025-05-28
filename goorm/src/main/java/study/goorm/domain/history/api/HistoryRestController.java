@@ -19,6 +19,8 @@ import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/history")
@@ -63,7 +65,7 @@ public class HistoryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),
     })
-    public BaseResponse<ClothResponseDTO.ClothCreateResult> createCloth(
+    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> createCloth(
             @RequestPart("historyCreateRequest") @Valid HistoryRequestDTO.HistoryCreateRequest historyCreateRequest,
             @RequestPart("imageFile") List<MultipartFile> imageFiles
     ) {

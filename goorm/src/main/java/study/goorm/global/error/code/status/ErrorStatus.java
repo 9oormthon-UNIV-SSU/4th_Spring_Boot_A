@@ -34,6 +34,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 기록 ID입니다."),
     BAD_DATE_TYPE(HttpStatus.BAD_REQUEST, "HISTORY_4001", "잘못된 날짜 형식입니다."),
     NO_HISTORY_IMAGE(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록의 사진이 존재하지 않습니다."),
+    NO_IMAGE_SENT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록의 사진은 한 장 이상이어야 합니다."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "HISTORY_4003", "잘못된 날짜 형식입니다."),
     CLOTHES_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4003", "중복되는 옷이 등록되었습니다."),
     HASHTAGS_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4004", "중복되는 해시태그가(hashtag List) 등록되었습니다.");

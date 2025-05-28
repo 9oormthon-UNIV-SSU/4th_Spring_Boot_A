@@ -46,7 +46,7 @@ public class HistoryResponseDTO {
         String clokeyId;
         String contents;
         List<String> images;
-        List<Hashtag> hashtags;
+        List<String> hashtags;
         int likeCount;
         boolean liked;
         LocalDate date;

@@ -6,5 +6,5 @@ import study.goorm.domain.history.domain.entity.Hashtag;
 import java.util.List;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long>{
-    List<Hashtag> findAllByNameIn(void attr0);
+    List<Hashtag> findAllByNameIn(List<String> attr0);
 }

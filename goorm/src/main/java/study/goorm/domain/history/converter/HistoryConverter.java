@@ -2,6 +2,7 @@ package study.goorm.domain.history.converter;
 
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.cloth.domain.entity.ClothImage;
+import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.history.domain.entity.Hashtag;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.entity.HistoryImage;
@@ -37,7 +38,7 @@ public class HistoryConverter {
             Member member,
             boolean liked,
             List<String> historyImageUrls,
-            List<Hashtag> hashtags,
+            List<String> hashtagNames,
             List<Cloth> clothes,
             Map<Long, String> firstImagesOfCloth
     ){
@@ -48,7 +49,7 @@ public class HistoryConverter {
                 .clokeyId(member.getClokeyId())
                 .contents(history.getContent())
                 .images(historyImageUrls)
-                .hashtags(hashtags)
+                .hashtags(hashtagNames)
                 .likeCount(history.getLikes())
                 .liked(liked)
                 .date(history.getHistoryDate())
@@ -65,5 +66,11 @@ public class HistoryConverter {
                 .build()
                 )
                 .collect(Collectors.toList());
+    }
+
+    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
+        return HistoryResponseDTO.HistoryCreateResult.builder()
+                .id(history.getId())
+                .build();
     }
 }

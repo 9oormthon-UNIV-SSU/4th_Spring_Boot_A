@@ -1,6 +1,7 @@
 package study.goorm.domain.history.dto;
 
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,12 +18,13 @@ public class HistoryRequestDTO {
     public static class HistoryCreateRequest {
 
         @Column(length = 200)
-        String content;
+        private String content;
 
-        List<Long> clothes;
+        private List<Long> clothes;
 
-        List<String> hashtags;
+        private List<String> hashtags;
 
-        String Date;
+        @NotNull(message = "날짜는 필수입니다.")
+        private String Date;
     }
 }
