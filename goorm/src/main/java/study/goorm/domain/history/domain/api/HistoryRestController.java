@@ -75,5 +75,16 @@ public class HistoryRestController {
     }
 
 
+    @PatchMapping(value = "/{historyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "날짜별 옷 기록 수정 API", description = "기록 ID로 기존 기록을 수정합니다.")
+    public BaseResponse<Void> updateHistory(
+            @PathVariable Long historyId,
+            @RequestPart("metadata") @Valid HistoryRequestDTO.HistoryUpdateRequest metadata,
+            @RequestPart("image") List<MultipartFile> imageFiles
+    ) {
+        historyService.updateHistory(historyId, metadata, imageFiles);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED);
+    }
+
 
 }

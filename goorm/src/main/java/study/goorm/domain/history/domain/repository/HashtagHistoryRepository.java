@@ -9,4 +9,6 @@ import java.util.List;
 public interface HashtagHistoryRepository extends JpaRepository<HashtagHistory, Long>{
     List<HashtagHistory> findAllByHistory(History history);
 
+    void deleteAllByHistory(History history);
+
 }

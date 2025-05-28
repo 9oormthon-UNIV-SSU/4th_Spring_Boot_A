@@ -8,4 +8,5 @@ public interface MemberService {
     Member getCurrentMember();
 
     Optional<Member> findByClokeyId(String clokeyId);
+
 }

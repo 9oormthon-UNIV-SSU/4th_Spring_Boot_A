@@ -12,4 +12,6 @@ public interface HistoryImageRepository extends JpaRepository<HistoryImage, Long
 
     List<HistoryImage> findAllByHistory(History history);
 
+    void deleteAllByHistory(History history);
+
 }

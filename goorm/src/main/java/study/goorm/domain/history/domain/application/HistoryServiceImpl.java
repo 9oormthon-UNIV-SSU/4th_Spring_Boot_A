@@ -21,6 +21,7 @@ import study.goorm.global.error.code.status.ErrorStatus;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -161,6 +162,83 @@ public class HistoryServiceImpl implements HistoryService {
 
 
         return historyConverter.toHistoryCreateResult(history);
+    }
+
+
+
+    @Override
+    @Transactional
+    public void updateHistory(Long historyId, HistoryRequestDTO.HistoryUpdateRequest request, List<MultipartFile> imageFiles) {
+
+        Member member = memberService.getCurrentMember();
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        if (!history.getMember().getId().equals(member.getId())) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
+        }
+
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            throw new HistoryException(ErrorStatus.NO_HISTORY_IMAGE);
+        }
+        if (imageFiles.size() > 10) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
+        }
+
+        if (request.getHashtags().size() != new HashSet<>(request.getHashtags()).size()) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
+        }
+
+        if (request.getClothes().size() != new HashSet<>(request.getClothes()).size()) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
+        }
+
+        historyImageRepository.deleteAllByHistory(history);
+        for (MultipartFile file : imageFiles) {
+            String imageUrl = "업로드된 URL";
+            historyImageRepository.save(HistoryImage.builder()
+                    .history(history)
+                    .imageUrl(imageUrl)
+                    .build());
+        }
+
+        hashtagHistoryRepository.deleteAllByHistory(history);
+        for (String tag : request.getHashtags()) {
+            Hashtag hashtag = hashtagRepository.findByName(tag)
+                    .orElseGet(() -> hashtagRepository.save(Hashtag.builder().name(tag).build()));
+            hashtagHistoryRepository.save(
+                    HashtagHistory.builder()
+                            .hashtag(hashtag)
+                            .history(history)
+                            .build()
+            );        }
+
+        List<HistoryCloth> oldMappings = historyClothRepository.findAllByHistory(history);
+        for (HistoryCloth hc : oldMappings) {
+            Cloth cloth = hc.getCloth();
+            cloth.setWearNum(Math.max(cloth.getWearNum() - 1, 0));
+            clothRepository.save(cloth);
+        }
+        historyClothRepository.deleteAll(oldMappings);
+
+        for (Long clothId : request.getClothes()) {
+            Cloth cloth = clothRepository.findById(clothId)
+                    .filter(c -> c.getMember().equals(member))
+                    .orElseThrow(() -> new ClothException(ErrorStatus.NO_SUCH_CLOTH));
+
+            cloth.setWearNum(cloth.getWearNum() + 1);
+            clothRepository.save(cloth);
+
+            historyClothRepository.save(HistoryCloth.builder()
+                    .history(history)
+                    .cloth(cloth)
+                    .build());
+        }
+
+
+        history.setContent(request.getContent());
+        historyRepository.save(history);
     }
 
 }

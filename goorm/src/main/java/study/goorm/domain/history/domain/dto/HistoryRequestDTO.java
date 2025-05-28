@@ -32,4 +32,26 @@ public class HistoryRequestDTO {
         @DateTimeFormat(pattern = "YYYY-MM-DD")
         private LocalDate date;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryUpdateRequest {
+
+        @NotBlank
+        @Size(max = 200)
+        private String content;
+
+        @NotNull
+        @Size(min = 1)
+        private List<Long> clothes;
+
+        @NotNull
+        @Size(min = 1)
+        private List<String> hashtags;
+
+        @NotNull
+        private Visibility visibility; // enum: PUBLIC or PRIVATE
+    }
 }
