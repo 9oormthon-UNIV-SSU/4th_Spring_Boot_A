@@ -20,12 +20,14 @@ import study.goorm.global.error.code.status.ErrorStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class HistoryServiceImpl implements HistoryService {
 
     private final HistoryRepository historyRepository;
+    private final HistoryImageQueryService historyImageQueryService;
     private final HistoryImageRepository historyImageRepository;
     private final MemberRepository memberRepository;
     private final HashtagHistoryRepository hashtagHistoryRepository;
@@ -49,6 +51,8 @@ public class HistoryServiceImpl implements HistoryService {
                 .map(History::getId)
                 .toList();
         List<HistoryImage> historyImages = historyImageRepository.findAllByHistoryIdIn(historyIds);
+
+        Map<Long, String> firstImagesOfHistory = historyImageQueryService.getFirstHistoryImageUrlMap(histories);
 
         return HistoryConverter.toHistoryGetMonthly(member, month, histories, historyImages);
     }
