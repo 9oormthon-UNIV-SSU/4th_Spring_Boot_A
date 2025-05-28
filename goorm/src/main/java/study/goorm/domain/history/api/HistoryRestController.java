@@ -60,7 +60,7 @@ public class HistoryRestController {
     public BaseResponse<HistoryResponseDTO.HistoryGetDaily> getDailyHistory(
             @PathVariable Long historyId
     ) {
-        HistoryResponseDTO.HistoryGetDaily result = historyService.getHistoryGetDaily(historyId));
+        HistoryResponseDTO.HistoryGetDaily result = historyService.getHistoryGetDaily(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_GET_MONTH, result);
     }

@@ -1,8 +1,6 @@
 package study.goorm.domain.history.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +9,6 @@ import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.cloth.exception.ClothException;
 import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.History;
-import study.goorm.domain.history.domain.entity.HistoryCloth;
 import study.goorm.domain.history.domain.entity.HistoryImage;
 import study.goorm.domain.history.domain.repository.HashtagHistoryRepository;
 import study.goorm.domain.history.domain.repository.HistoryClothRepository;
@@ -23,12 +20,10 @@ import study.goorm.domain.history.exception.HistoryExeption;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
-import study.goorm.domain.model.enums.ClothSort;
 import study.goorm.global.error.code.status.ErrorStatus;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -85,29 +80,59 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, MultipartFile image) {
-        List<Cloth> cloth = clothRepository.findAllById(historyCreateResult.getClothes());
-        if (cloth.isEmpty()) {
+
+        List<Cloth> clothes = clothRepository.findAllById(historyCreateResult.getClothes());
+        if (clothes.isEmpty()) {
             throw new ClothException(ErrorStatus.NO_SUCH_CLOTH);
         }
-
 
         History newHistory = History.builder()
                 .historyDate(LocalDate.parse(historyCreateResult.getDate()))
                 .content(historyCreateResult.getContent())
                 .build();
-        HistoryImage newHistoryImage = HistoryImage.builder()
+        historyRepository.save(newHistory);
+
+        HistoryImage newImage = HistoryImage.builder()
                 .history(newHistory)
                 .imageUrl("url")
                 .build();
+        historyImageRepository.save(newImage);
 
-        historyImageRepository.save(newHistoryImage);
-
+        for (Cloth c : clothes) {
+            historyClothRepository.findByHistoryAndCloth(newHistory, c);
+        }
 
         return HistoryConverter.toHistoryCreateResult(newHistory);
     }
 
     @Override
-    public HistoryResponseDTO.HistoryCreateResult updateHistory(Long historyId, HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest, MultipartFile image) {
-        return null;
+    @Transactional
+    public void updateHistory(Long historyId, HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest, MultipartFile image) {
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+
+        // 기존 히스토리 정보 갱신
+        history.setContent(historyUpdateRequest.getContent());
+        history.setHistoryDate(LocalDate.parse(historyUpdateRequest.getDate()));
+
+        // 기존 이미지 삭제 및 새 이미지 저장 (간단화된 예)
+        historyImageRepository.deleteByHistory(history);
+
+        HistoryImage newImage = HistoryImage.builder()
+                .history(history)
+                .imageUrl("newImageUrl")  // 실제 구현에서는 image 저장 처리 필요
+                .build();
+        historyImageRepository.save(newImage);
+
+        // 기존 연결된 옷 정보 갱신
+        historyClothRepository.deleteByHistory(history);
+        List<Cloth> clothes = clothRepository.findAllById(historyUpdateRequest.getClothes());
+        if (clothes.isEmpty()) {
+            throw new ClothException(ErrorStatus.NO_SUCH_CLOTH);
+        }
+
+        for (Cloth cloth : clothes) {
+            historyClothRepository.findByHistoryAndCloth(history, cloth); // 커스텀 메서드 필요
+        }
     }
 }

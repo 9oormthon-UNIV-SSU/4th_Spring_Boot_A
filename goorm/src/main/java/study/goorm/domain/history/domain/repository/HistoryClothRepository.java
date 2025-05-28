@@ -8,4 +8,5 @@ import study.goorm.domain.history.domain.entity.HistoryCloth;
 public interface HistoryClothRepository extends JpaRepository<HistoryCloth, Long>{
     void deleteAllByCloth(Cloth cloth);
     void deleteByHistory(History history);
+    void findByHistoryAndCloth(History history, Cloth cloth);
 }

@@ -24,6 +24,7 @@ public class History extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    @Setter
     private LocalDate historyDate;
 
     @Min(0)
@@ -31,6 +32,7 @@ public class History extends BaseEntity {
     private int likes;
 
     @Column(length = 200)
+    @Setter
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
