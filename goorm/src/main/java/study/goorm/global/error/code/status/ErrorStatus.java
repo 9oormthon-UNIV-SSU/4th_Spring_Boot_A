@@ -27,6 +27,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // History
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 기록입니다."),
     NO_GRANT_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록에 접근 권한이 없습니다."),
+    NO_HISTORY_IMAGE(HttpStatus.BAD_REQUEST, "HISTORY_4003", "기록에는 사진을 첨부해야합니다."),
     // Page
     PAGE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4001","페이지는 1이상으로 입력해야 합니다."),
     PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4002","페이지 사이즈는 1이상으로 입력해야 합니다.")

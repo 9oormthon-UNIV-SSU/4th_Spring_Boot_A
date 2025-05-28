@@ -3,19 +3,23 @@ package study.goorm.domain.history.domain.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import study.goorm.domain.cloth.domain.dto.ClothRequestDTO;
+import study.goorm.domain.cloth.domain.entity.Cloth;
+import study.goorm.domain.cloth.domain.exception.ClothException;
+import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.history.domain.converter.HistoryConverter;
+import study.goorm.domain.history.domain.dto.HistoryRequestDTO;
 import study.goorm.domain.history.domain.dto.HistoryResponseDTO;
-import study.goorm.domain.history.domain.entity.HashtagHistory;
-import study.goorm.domain.history.domain.entity.History;
-import study.goorm.domain.history.domain.entity.HistoryImage;
+import study.goorm.domain.history.domain.entity.*;
 import study.goorm.domain.history.domain.exception.HistoryException;
 import study.goorm.domain.history.domain.repository.*;
 import study.goorm.domain.member.domain.application.MemberService;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.global.error.code.status.ErrorStatus;
-import study.goorm.domain.history.domain.entity.Hashtag;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,4 +97,70 @@ public class HistoryServiceImpl implements HistoryService {
 
         return historyConverter.toDailyHistoryResult(history, imageUrls, hashtags, liked, clothDtos);
     }
+
+    private final ClothRepository clothRepository;
+    private final HashtagRepository hashtagRepository;
+
+    // 기록 추가
+    @Override
+    public HistoryResponseDTO.HistoryCreateResult  createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles){
+
+        Member member = memberService.getCurrentMember();
+        LocalDate date = historyCreateRequest.getDate();
+
+        History history = historyRepository.findByMemberAndHistoryDate(member,historyCreateRequest.getDate())
+                .orElseGet(() -> History.builder()
+                .historyDate(date)
+                .content(historyCreateRequest.getContent())
+                .likes(0)
+                .member(member)
+                .build());
+
+        history.setContent(historyCreateRequest.getContent());
+        historyRepository.save(history);
+
+        if(imageFiles == null || imageFiles.isEmpty()){
+            throw new HistoryException(ErrorStatus.NO_HISTORY_IMAGE);
+        }
+
+        // S3 연결 안함
+        for (MultipartFile file : imageFiles) {
+            String imageUrl = "image URL";
+            HistoryImage image = HistoryImage.builder()
+                    .imageUrl(imageUrl)
+                    .history(history)
+                    .build();
+            historyImageRepository.save(image);
+        }
+
+        for(String tag : historyCreateRequest.getHashtags()){
+            Hashtag hashtag = hashtagRepository.findByName(tag)
+                    .orElseGet(() -> hashtagRepository.save(Hashtag.builder().name(tag).build()));
+
+
+            HashtagHistory hashtagHistory = HashtagHistory.builder()
+                    .history(history)
+                    .hashtag(hashtag)
+                    .build();
+            hashtagHistoryRepository.save(hashtagHistory);
+        }
+
+        for(Long clothId : historyCreateRequest.getClothes()){
+            Cloth cloth = clothRepository.findById(clothId)
+                    .orElseThrow(() -> new ClothException(ErrorStatus.NO_SUCH_CLOTH));
+
+            cloth.setWearNum(cloth.getWearNum() + 1);
+            clothRepository.save(cloth);
+
+            HistoryCloth historyCloth = HistoryCloth.builder()
+                    .cloth(cloth)
+                    .history(history)
+                    .build();
+            historyClothRepository.save(historyCloth);
+        }
+
+
+        return historyConverter.toHistoryCreateResult(history);
+    }
+
 }

@@ -37,5 +37,9 @@ public class History extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    public void setContent(String content) {
+        this.content = content;
+    }
+
 }
 

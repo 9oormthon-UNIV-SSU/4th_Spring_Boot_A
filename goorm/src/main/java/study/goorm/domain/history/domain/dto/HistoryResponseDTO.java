@@ -60,4 +60,13 @@ public class HistoryResponseDTO {
 
 
     }
+
+    // 기록 추가
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCreateResult{
+        private Long historyId;
+    }
 }

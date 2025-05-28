@@ -5,18 +5,21 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import study.goorm.domain.cloth.domain.application.ClothService;
+import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.history.domain.application.HistoryService;
+import study.goorm.domain.history.domain.dto.HistoryRequestDTO;
 import study.goorm.domain.history.domain.dto.HistoryResponseDTO;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
-import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,6 +59,19 @@ public class HistoryRestController {
         HistoryResponseDTO.DailyHistoryResult result = historyService.getDailyHistory(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_VIEW_SUCCESS, result);
+    }
+
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "날짜별 옷 기록 추가 API", description = "해당 날짜에 기록을 추가하는 API입니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 성공적으로 생성되었습니다.")
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> createHistory(
+            @RequestPart("historyCreateRequest") @Valid HistoryRequestDTO.HistoryCreateRequest historyCreateRequest,
+            @RequestPart("imageFile") List<MultipartFile> imageFiles
+    ){
+        HistoryResponseDTO.HistoryCreateResult result = historyService.createHistory(historyCreateRequest, imageFiles);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, result);
     }
 
 

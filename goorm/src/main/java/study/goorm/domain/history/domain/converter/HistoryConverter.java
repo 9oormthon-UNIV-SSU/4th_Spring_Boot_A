@@ -64,4 +64,11 @@ public class HistoryConverter {
                 .build();
     }
 
+    // 기록 추가
+    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
+        return HistoryResponseDTO.HistoryCreateResult.builder()
+                .historyId(history.getId())
+                .build();
+    }
+
 }
