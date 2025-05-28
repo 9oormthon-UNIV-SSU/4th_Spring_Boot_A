@@ -8,12 +8,11 @@ import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.cloth.exception.ClothException;
 import study.goorm.domain.history.converter.HistoryConverter;
+import study.goorm.domain.history.domain.entity.Hashtag;
+import study.goorm.domain.history.domain.entity.HashtagHistory;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.entity.HistoryImage;
-import study.goorm.domain.history.domain.repository.HashtagHistoryRepository;
-import study.goorm.domain.history.domain.repository.HistoryClothRepository;
-import study.goorm.domain.history.domain.repository.HistoryImageRepository;
-import study.goorm.domain.history.domain.repository.HistoryRepository;
+import study.goorm.domain.history.domain.repository.*;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryExeption;
@@ -35,6 +34,7 @@ public class HistoryServiceImpl implements HistoryService {
     private final HashtagHistoryRepository hashtagHistoryRepository;
     private final HistoryClothRepository historyClothRepository;
     private final ClothRepository clothRepository;
+    private final HashtagRepository hashtagRepository;
 
 
     @Override
@@ -102,6 +102,26 @@ public class HistoryServiceImpl implements HistoryService {
             historyClothRepository.findByHistoryAndCloth(newHistory, c);
         }
 
+        List<String> tags = historyCreateResult.getHashtags();
+
+        for (String name : tags) {
+            Hashtag hashtag = hashtagRepository.findByName(name)
+                    .orElseGet(() ->
+                            hashtagRepository.save(
+                                    Hashtag.builder()
+                                            .name(name)
+                                            .build()
+                            )
+                    );
+
+            HashtagHistory mapping = HashtagHistory.builder()
+                    .history(newHistory)
+                    .hashtag(hashtag)
+                    .build();
+
+            hashtagHistoryRepository.save(mapping);
+        }
+
         return HistoryConverter.toHistoryCreateResult(newHistory);
     }
 
@@ -133,6 +153,29 @@ public class HistoryServiceImpl implements HistoryService {
 
         for (Cloth cloth : clothes) {
             historyClothRepository.findByHistoryAndCloth(history, cloth); // 커스텀 메서드 필요
+        }
+
+        // 기존 해시태그 매핑 제거
+        hashtagHistoryRepository.deleteByHistory(history);
+
+        // 새 해시태그 등록
+        List<String> tags = historyUpdateRequest.getHashtags();
+        for (String name : tags) {
+            Hashtag hashtag = hashtagRepository.findByName(name)
+                    .orElseGet(() ->
+                            hashtagRepository.save(
+                                    Hashtag.builder()
+                                            .name(name)
+                                            .build()
+                            )
+                    );
+
+            HashtagHistory mapping = HashtagHistory.builder()
+                    .history(history)
+                    .hashtag(hashtag)
+                    .build();
+
+            hashtagHistoryRepository.save(mapping);
         }
     }
 }

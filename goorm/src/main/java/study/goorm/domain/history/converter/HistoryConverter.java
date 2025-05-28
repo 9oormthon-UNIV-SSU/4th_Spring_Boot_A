@@ -18,12 +18,6 @@ public class HistoryConverter {
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryGetDaily toHistoryGetDaily(History history, HistoryImage historyImage){
-        return HistoryResponseDTO.HistoryGetDaily.builder()
-
-                .build();
-    }
-
     private static List<HistoryResponseDTO.HistoryGet> toHistoryGetList(List<History> histories, List<HistoryImage> historyImages) {
         return histories.stream()
                 .map(history -> {
@@ -43,6 +37,13 @@ public class HistoryConverter {
                 .imageUrl(historyImage != null ? historyImage.getImageUrl() : "비공개입니다")
                 .build();
     }
+
+    public static HistoryResponseDTO.HistoryGetDaily toHistoryGetDaily(History history, HistoryImage historyImage){
+        return HistoryResponseDTO.HistoryGetDaily.builder()
+
+                .build();
+    }
+
 
     public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
         return HistoryResponseDTO.HistoryCreateResult.builder()
