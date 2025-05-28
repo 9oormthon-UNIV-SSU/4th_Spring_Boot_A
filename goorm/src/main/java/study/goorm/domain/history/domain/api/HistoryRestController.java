@@ -3,14 +3,12 @@ package study.goorm.domain.history.domain.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import study.goorm.domain.cloth.domain.application.ClothService;
 import study.goorm.domain.history.domain.application.HistoryService;
 import study.goorm.domain.history.domain.dto.HistoryResponseDTO;
@@ -30,7 +28,7 @@ public class HistoryRestController {
     @GetMapping("/monthly/")
     @Operation( summary = "월별 기록 조회 API", description = "query string으로 clokeyid, month 넣어줘야합니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse( responseCode = "HISTORY_200", description = "OK, 성공적으로 조회되었습니다.")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse( responseCode = "HISTORY_200", description = "월별 기록이 성공적으로 조회되었습니다.")
     })
     @Parameters({
             @Parameter(name = "clokey-id", description = "클로키 유저의 clokey id, 입력하지 않으면 본인의 월별 기록을 확인합니다."),
@@ -46,6 +44,19 @@ public class HistoryRestController {
     }
 
 
+    @GetMapping("/{historyId}")
+    @Operation(summary = "일별 기록을 조회하는 API", description = "historyId를 Path Variable입력하면 조회가 가능합니다.")
+    @Parameter(name = "historyId", description = "조회하고자 하는 기록의 ID", required = true)
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_200", description = "성공적으로 조회되었습니다.")
+    })
+    public BaseResponse<HistoryResponseDTO.DailyHistoryResult> getDailyHistory(
+            @PathVariable(name = "historyId") Long historyId
+    ){
+        HistoryResponseDTO.DailyHistoryResult result = historyService.getDailyHistory(historyId);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_VIEW_SUCCESS, result);
+    }
 
 
 
