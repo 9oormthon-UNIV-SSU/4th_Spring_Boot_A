@@ -65,7 +65,7 @@ public class HistoryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),
     })
-    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> createCloth(
+    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> createHistory(
             @RequestPart("historyCreateRequest") @Valid HistoryRequestDTO.HistoryCreateRequest historyCreateRequest,
             @RequestPart("imageFile") List<MultipartFile> imageFiles
     ) {
@@ -83,12 +83,29 @@ public class HistoryRestController {
     @Parameters({
             @Parameter(name = "history-id", description = "기록의 id, path variable 입니다.")
     })
-    public BaseResponse<Void> delete(
+    public BaseResponse<Void> deleteHistory(
             @PathVariable(value = "history-id") Long historyId
     ) {
 
         historyService.deleteHistory(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
+    }
+
+    @PatchMapping("/histories/{history-id}")
+    @Operation(summary = "기록을 수정하는 API", description = "request body에 HistoryPatchRequest 형식의 데이터를 전달해주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> patchHistory(
+            @RequestPart("historyPatchRequest") @Valid HistoryRequestDTO.HistoryPatchRequest historyPatchRequest,
+            @RequestPart("imageFile") List<MultipartFile> imageFiles,
+            @PathVariable(value = "history-id") Long historyId
+    ) {
+        //HistoryResponseDTO.HistoryPatchResult result = historyService.patchHistory(historyPatchRequest, imageFiles, historyId);
+
+        historyService.patchHistory(historyPatchRequest, imageFiles, historyId);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, null);
     }
 }

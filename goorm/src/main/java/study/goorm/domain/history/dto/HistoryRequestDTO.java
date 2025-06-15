@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import study.goorm.domain.model.enums.Visibility;
 
 import java.util.List;
 
@@ -25,6 +26,18 @@ public class HistoryRequestDTO {
         private List<String> hashtags;
 
         @NotNull(message = "날짜는 필수입니다.")
-        private String Date;
+        private String date;
+    }
+
+    public static class HistoryPatchRequest {
+
+        @Column(length = 200)
+        private String content;
+
+        private List<Long> clothes;
+
+        private List<String> hashtags;
+
+        private Visibility visibility;
     }
 }

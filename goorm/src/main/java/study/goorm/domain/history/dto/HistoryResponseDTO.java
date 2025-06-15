@@ -64,7 +64,6 @@ public class HistoryResponseDTO {
         String clothImageUrl;
     }
 
-
     @Builder
     @Getter
     @NoArgsConstructor
@@ -72,4 +71,5 @@ public class HistoryResponseDTO {
     public static class HistoryCreateResult {
         private Long id;
     }
+
 }

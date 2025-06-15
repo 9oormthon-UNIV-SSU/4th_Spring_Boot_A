@@ -16,10 +16,10 @@ public interface HistoryImageRepository extends JpaRepository<HistoryImage, Long
 
     @Query(value = """
         SELECT hi.*
-        FROM history_img hi
+        FROM history_image hi
         JOIN (
             SELECT history_id, MIN(created_at) AS min_created_at
-            FROM history_img
+            FROM history_image
             WHERE history_id IN :historyIds
             GROUP BY history_id
         ) first_img

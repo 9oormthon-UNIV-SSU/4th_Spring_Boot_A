@@ -46,6 +46,11 @@ public class HistoryServiceImpl implements HistoryService{
     @Override
     @Transactional(readOnly = true)
     public HistoryResponseDTO.MonthlyHistoryResult getMonthlyHistory(String clokeyId, String month) {
+        // 날짜 형식 검증
+        if(!(month != null && month.matches("^\\d{4}-(0[1-9]|1[0-2])$"))){
+            throw new HistoryException(ErrorStatus.BAD_DATE_TYPE);
+        }
+
         Member member;
         if (clokeyId == null) { // clokeyId가 null이면 "1"로 가정하고 구현
             clokeyId = "clo001";
@@ -55,7 +60,7 @@ public class HistoryServiceImpl implements HistoryService{
 
         List<History> histories = historyRepository.findAllByMemberIdAndMonth(member.getId(), month);
         if (histories.isEmpty()) {
-            throw new HistoryException(ErrorStatus.BAD_DATE_TYPE);
+            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
         }
 
         Map<Long, String> firstImagesOfHistory = historyImageQueryService.getFirstImageUrlMap(histories);
@@ -112,7 +117,7 @@ public class HistoryServiceImpl implements HistoryService{
     @Transactional
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
 
-        // 이미지 업로드 개수 제한
+        // 이미지 업로드 개수 제한 <= 10
         if (imageFiles.size() >= 10) {
             throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
         } else if (imageFiles.size() == 0) {
@@ -131,7 +136,7 @@ public class HistoryServiceImpl implements HistoryService{
         Member member = memberRepository.findById(1L)
                 .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
 
-        // 옷이 중복되는지 검사
+        // 옷이 중복되는지 검사 중복시 예외처리
         List<Long> clothesList = historyCreateRequest.getClothes();
         Set<Long> set = new HashSet<>(clothesList);
         if (clothesList.size() != set.size()) throw new HistoryException(ErrorStatus.CLOTHES_NOT_UNIQUE);
@@ -185,6 +190,31 @@ public class HistoryServiceImpl implements HistoryService{
         hashtagHistoryRepository.saveAll(hashtagHistories);
 
         return HistoryConverter.toHistoryCreateResult(newHistory);
+
+    }
+
+    @Override
+    @Transactional
+    public void patchHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles, Long historyId){
+        //나의 기록이 아니면 에러 (memberId 1이 사용자라고 가정)
+        Long LoginMemberId = 1L;
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+        if(!history.getMember().getId().equals(LoginMemberId)) {
+            throw new HistoryException(ErrorStatus.HISTORY_PATCH_DENIED);
+        }
+
+        // 옷이 중복되는지 검사 중복시 예외처리
+        List<Long> clothesList = historyCreateRequest.getClothes();
+        Set<Long> set = new HashSet<>(clothesList);
+        if (clothesList.size() != set.size()) throw new HistoryException(ErrorStatus.CLOTHES_NOT_UNIQUE);
+
+        // 이미지 업로드 개수 제한 <= 10
+        if (imageFiles.size() >= 10) {
+            throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
+        } else if (imageFiles.isEmpty()) {
+            throw new HistoryException(ErrorStatus.NO_IMAGE_SENT);
+        }
 
     }
 
