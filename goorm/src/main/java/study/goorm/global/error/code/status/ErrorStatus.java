@@ -18,6 +18,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // Cloth
     NO_SUCH_CLOTH(HttpStatus.BAD_REQUEST, "CLOTH_4001", "옷이 존재하지 않습니다"),
     NO_ClOTH_IMAGE(HttpStatus.BAD_REQUEST, "CLOTH_4002", "옷의 사진이 존재하지 않습니다."),
+    NO_OWNED_CLOTH(HttpStatus.BAD_REQUEST, "CLOTH_4003", "본인의 옷이 아닌 옷이 등록되었습니다."),
     LOWER_TEMP_BIGGER_THAN_UPPER_TEMP(HttpStatus.BAD_REQUEST, "CLOTH_4004", "옷의 하한 온도가 상한 온도 보다 높습니다."),
 
     // Member

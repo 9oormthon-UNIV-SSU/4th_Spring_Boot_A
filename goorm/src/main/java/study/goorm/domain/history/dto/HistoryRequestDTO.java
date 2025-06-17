@@ -29,6 +29,10 @@ public class HistoryRequestDTO {
         private String date;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class HistoryPatchRequest {
 
         @Column(length = 200)

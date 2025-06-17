@@ -92,7 +92,7 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
     }
 
-    @PatchMapping("/histories/{history-id}")
+    @PatchMapping(path = "/histories/{history-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "기록을 수정하는 API", description = "request body에 HistoryPatchRequest 형식의 데이터를 전달해주세요.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),

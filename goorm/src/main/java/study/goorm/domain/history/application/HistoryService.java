@@ -15,7 +15,7 @@ public interface HistoryService {
 
     HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles);
 
-    void patchHistory(HistoryRequestDTO.HistoryCreateRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId);
+    void patchHistory(HistoryRequestDTO.HistoryPatchRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId);
 
     void deleteHistory(Long historyId);
 
