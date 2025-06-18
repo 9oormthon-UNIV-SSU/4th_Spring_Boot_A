@@ -5,6 +5,22 @@ spring:
     url: ${DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2 # 리전은 아무거나 넣어도 동작하지만, 보통 서울 리전으로 설정
+        auto: false
+      credentials:
+        access-key: ${MINIO_ACCESS} # MinIO 기본 Access Key
+        secret-key: ${MINIO_SECRET} # MinIO 기본 Secret Key
+      s3:
+        endpoint: http://localhost:9000 # 로컬 MinIO 서버 API 주소
+        path-style-access-enabled: true # ✅ 매우 중요! MinIO 사용 시 필수 설정
+
+  # 사용자 정의 설정 (업로드할 버킷 이름)
+  minio:
+    bucket-name: goorm
+
   jpa:
     hibernate:
       ddl-auto: update

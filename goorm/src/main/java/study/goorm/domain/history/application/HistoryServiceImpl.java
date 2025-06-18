@@ -18,6 +18,9 @@ import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
+import study.goorm.storage.FileStorageService;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -41,6 +44,7 @@ public class HistoryServiceImpl implements HistoryService{
     private final ClothImageQueryService clothImageQueryService;
     private final ClothRepository clothRepository;
     private final HashtagRepository hashtagRepository;
+    private final FileStorageService fileStorageService;
 
 
     @Override
@@ -155,6 +159,32 @@ public class HistoryServiceImpl implements HistoryService{
                 .member(member)
                 .build();
         historyRepository.save(newHistory);
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            // 1. MinIO에 파일들을 업로드하고 URL 목록을 받음
+            List<String> imageUrls = imageFiles.stream()
+                    .map(file -> {
+                        try {
+                            // fileStorageService를 통해 파일 업로드 후 URL 반환
+                            return fileStorageService.uploadFile(file);
+                        } catch (IOException e) {
+                            // 실제 프로덕션에서는 에러 처리를 더 정교하게 해야 함
+                            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+                        }
+                    })
+                    .toList();
+
+            // 2. 각 URL을 HistoryImage 엔티티로 변환
+            List<HistoryImage> historyImages = imageUrls.stream()
+                    .map(url -> HistoryImage.builder()
+                            .imageUrl(url)
+                            .history(newHistory) // 방금 저장한 History 객체를 연결
+                            .build())
+                    .toList();
+
+            // 3. HistoryImage 정보들을 DB에 한번에 저장
+            historyImageRepository.saveAll(historyImages);
+        }
 
         // DB에 존재하는 해시태그 조회
         List<Hashtag> existingHashtags = hashtagRepository.findAllByNameIn((historyCreateRequest.getHashtags()));
