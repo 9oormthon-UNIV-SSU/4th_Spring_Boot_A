@@ -118,10 +118,29 @@ public class HistoryServiceImpl implements HistoryService{
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.LikedUsersResult getLikedUsers(Long historyId) {
+        // history 불러옴
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+        // memberId 1번이 로그인한 유저라고 가정
+        Long loginMemberId = 1L;
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        List<MemberLike> memberLikes = memberLikeRepository.findAllByHistory(history);
+        List<Member> likedUsersList = memberLikes.stream()
+                .map(MemberLike::getMember)
+                .collect(Collectors.toList());
+
+        return HistoryConverter.toLikedUsersResult(likedUsersList, member);
+    }
+
+    @Override
     @Transactional
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
 
-        // 이미지 업로드 개수 제한 < 10
+        // 이미지 업로드 개수 제한 < 10, != 0
         validateImageCount(imageFiles);
 
         // 날짜 형식이 맞는지 검사

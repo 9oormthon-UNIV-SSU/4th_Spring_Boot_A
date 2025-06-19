@@ -68,6 +68,28 @@ public class HistoryConverter {
                 .collect(Collectors.toList());
     }
 
+    public static HistoryResponseDTO.LikedUsersResult toLikedUsersResult(List<Member> likedUsers, Member member) {
+        return HistoryResponseDTO.LikedUsersResult.builder()
+                .likedUsers(toLikedUsersResultItem(likedUsers, member))
+                .build();
+    }
+
+    public static List<HistoryResponseDTO.LikedUsersResultItem> toLikedUsersResultItem(List<Member> likedUsers, Member member) {
+        return likedUsers.stream()
+                .map(users -> {
+                    boolean isMe = (member != null) && users.getId().equals(member.getId());
+
+                    return HistoryResponseDTO.LikedUsersResultItem.builder()
+                            .memberId(users.getId())
+                            .clokeyId(users.getClokeyId())
+                            .nickName(users.getNickname())
+                            .imageUrl(users.getProfileImageUrl())
+                            .me(isMe)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
         return HistoryResponseDTO.HistoryCreateResult.builder()
                 .id(history.getId())

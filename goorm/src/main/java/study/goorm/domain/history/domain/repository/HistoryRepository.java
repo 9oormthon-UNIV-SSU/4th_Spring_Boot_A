@@ -1,9 +1,11 @@
 package study.goorm.domain.history.domain.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.goorm.domain.history.domain.entity.History;
+import study.goorm.domain.history.domain.entity.MemberLike;
 
 import java.util.List;
 

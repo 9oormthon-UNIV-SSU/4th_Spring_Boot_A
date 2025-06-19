@@ -60,6 +60,19 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DAILY_SUCCESS, result);
     }
 
+    @GetMapping("histories/{history-id}/likes")
+    @Operation(summary = "기록의 좋아요를 누른 유저들을 조회하는 API", description = "Path Variable로 historyId를 던져주세요.")
+    @ApiResponses({ // 이 API에서 나올 수 있는 ApiResponse에 대해서 적어주시면 됩니다. (제거해도 되고 성공, 실패 response 모두 작성 가능)
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HiSTORY_LIKED_200", description = "OK, 성공적으로 조회되었습니다."),
+    })
+    public BaseResponse<HistoryResponseDTO.LikedUsersResult> getLikedUsers(
+            @PathVariable(name = "history-id") Long historyId
+    ) {
+        HistoryResponseDTO.LikedUsersResult result = historyService.getLikedUsers(historyId);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_LIKED_SUCCESS, result);
+    }
+
     @PostMapping(value = "/histories", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "새로운 기록을 생성하는 API", description = "request body에 HistoryCreateRequest 형식의 데이터를 전달해주세요.")
     @ApiResponses({
@@ -106,6 +119,6 @@ public class HistoryRestController {
 
         historyService.patchHistory(historyPatchRequest, imageFiles, historyId);
 
-        return BaseResponse.onSuccess(SuccessStatus.HISTORY_CREATED, null);
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, null);
     }
 }
