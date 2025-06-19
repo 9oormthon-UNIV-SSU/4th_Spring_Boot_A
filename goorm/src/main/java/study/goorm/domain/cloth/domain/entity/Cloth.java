@@ -64,4 +64,12 @@ public class Cloth extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public void increaseWearNum() {
+        this.wearNum++;
+    }
+
+    public void decreaseWearNum() {
+        this.wearNum--;
+    }
 }

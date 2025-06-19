@@ -16,7 +16,6 @@ import study.goorm.domain.cloth.domain.repository.ClothRepository;
 import study.goorm.domain.cloth.dto.ClothRequestDTO;
 import study.goorm.domain.cloth.dto.ClothResponseDTO;
 import study.goorm.domain.cloth.exception.ClothException;
-import study.goorm.domain.folder.domain.entity.ClothFolder;
 import study.goorm.domain.folder.domain.repository.ClothFolderRepository;
 import study.goorm.domain.history.domain.repository.HistoryClothRepository;
 import study.goorm.domain.member.domain.entity.Member;
@@ -77,7 +76,7 @@ public class ClothServiceImpl implements ClothService{
 
         Map<Long, String> firstImagesOfCloth = clothImageQueryService.getFirstImageUrlMap(clothes);
 
-        return null;
+        return ClothConverter.toMemberClosetResult(member,firstImagesOfCloth,clothes);
     }
 
     @Override
@@ -127,7 +126,6 @@ public class ClothServiceImpl implements ClothService{
         clothImageRepository.deleteAllByCloth(cloth);
         clothFolderRepository.deleteAllByCloth(cloth);
         historyClothRepository.deleteAllByCloth(cloth);
-
 
         //최종 옷 삭제
         clothRepository.delete(cloth);

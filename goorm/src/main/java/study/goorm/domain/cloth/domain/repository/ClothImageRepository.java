@@ -25,4 +25,6 @@ public interface ClothImageRepository extends JpaRepository<ClothImage, Long>{
     List<ClothImage> findFirstImagesByClothIds(@Param("clothIds") List<Long> clothIds);
 
     void deleteAllByCloth(Cloth cloth);
+
+    List<ClothImage> findAllByClothIn(List<Cloth> clothes);
 }

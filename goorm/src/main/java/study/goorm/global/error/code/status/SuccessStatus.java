@@ -15,7 +15,13 @@ public enum SuccessStatus implements BaseCode {
     //Cloth
     CLOTH_VIEW_SUCCESS(HttpStatus.OK,"CLOTH_200","옷이 성공적으로 조회되었습니다."),
     CLOTH_CREATED(HttpStatus.CREATED, "CLOTH_201"," 옷이 성공적으로 생성되었습니다."), // 새로 생성할 때는 보통 201 사용
-    CLOTH_DELETED(HttpStatus.NO_CONTENT,"CLOTH_202","옷이 성공적으로 삭제되었습니다");
+    CLOTH_DELETED(HttpStatus.NO_CONTENT,"CLOTH_204","옷이 성공적으로 삭제되었습니다"),
+
+    //History
+    HISTORY_MONTHLY_SUCCESS(HttpStatus.OK, "HISTORY_MONTHLY_200", "월별 기록이 성공적으로 조회되었습니다."),
+    HISTORY_DAILY_SUCCESS(HttpStatus.OK, "HISTORY_DAILY_200", "일별 기록이 성공적으로 조회되었습니다."),
+    HISTORY_CREATED(HttpStatus.CREATED, "HISTORY_201"," 기록이 성공적으로 생성되었습니다."),
+    HISTORY_DELETED(HttpStatus.NO_CONTENT, "HISTORY_204", "기록이 성공적으로 삭제되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

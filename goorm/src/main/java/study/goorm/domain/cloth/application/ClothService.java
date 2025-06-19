@@ -12,6 +12,6 @@ public interface ClothService {
 
     ClothResponseDTO.ClothCreateResult createCloth(ClothRequestDTO.ClothCreateRequest clothCreateResult, MultipartFile image);
 
-    public void deleteCloth(Long clothId);
+    void deleteCloth(Long clothId);
 }
 

@@ -16,19 +16,31 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // Cloth
-    NO_SUCH_CLOTH(HttpStatus.BAD_REQUEST, "CLOTH_4001","옷이 존재하지 않습니다"),
-    NO_ClOTH_IMAGE(HttpStatus.BAD_REQUEST,"CLOTH_4002","옷의 사진이 존재하지 않습니다."),
-    LOWER_TEMP_BIGGER_THAN_UPPER_TEMP(HttpStatus.BAD_REQUEST,"CLOTH_4004","옷의 하한 온도가 상한 온도 보다 높습니다."),
+    NO_SUCH_CLOTH(HttpStatus.BAD_REQUEST, "CLOTH_4001", "옷이 존재하지 않습니다"),
+    NO_ClOTH_IMAGE(HttpStatus.BAD_REQUEST, "CLOTH_4002", "옷의 사진이 존재하지 않습니다."),
+    NO_OWNED_CLOTH(HttpStatus.BAD_REQUEST, "CLOTH_4003", "본인의 옷이 아닌 옷이 등록되었습니다."),
+    LOWER_TEMP_BIGGER_THAN_UPPER_TEMP(HttpStatus.BAD_REQUEST, "CLOTH_4004", "옷의 하한 온도가 상한 온도 보다 높습니다."),
 
     // Member
-    NO_SUCH_MEMBER(HttpStatus.BAD_REQUEST,"MEMBER_4001","멤버가 존재하지 않습니다."),
+    NO_SUCH_MEMBER(HttpStatus.BAD_REQUEST, "MEMBER_4001", "멤버가 존재하지 않습니다."),
 
     // Page
-    PAGE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4001","페이지는 1이상으로 입력해야 합니다."),
-    PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4002","페이지 사이즈는 1이상으로 입력해야 합니다."),
+    PAGE_UNDER_ONE(HttpStatus.BAD_REQUEST, "PAGE_4001", "페이지는 1이상으로 입력해야 합니다."),
+    PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST, "PAGE_4002", "페이지 사이즈는 1이상으로 입력해야 합니다."),
 
     // Category
-    NO_SUCH_CATEGORY(HttpStatus.BAD_REQUEST, "CLOTH_4003", "카테고리가 존재하지 않습니다.");
+    NO_SUCH_CATEGORY(HttpStatus.BAD_REQUEST, "CLOTH_4003", "카테고리가 존재하지 않습니다."),
+
+    // History
+    NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 기록 ID입니다."),
+    BAD_DATE_TYPE(HttpStatus.BAD_REQUEST, "HISTORY_4001", "잘못된 날짜 형식입니다."),
+    NO_HISTORY_IMAGE(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록의 사진이 존재하지 않습니다."),
+    NO_IMAGE_SENT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록의 사진은 한 장 이상이어야 합니다."),
+    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "HISTORY_4003", "기록의 사진은 10장 미만이어야 합니다."),
+    CLOTHES_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4003", "중복되는 옷이 등록되었습니다."),
+    HASHTAGS_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4004", "중복되는 해시태그가(hashtag List) 등록되었습니다."),
+    HISTORY_PATCH_DENIED(HttpStatus.BAD_REQUEST, "HISTORY_4005", "해당 사용자의 기록이 아닙니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;
