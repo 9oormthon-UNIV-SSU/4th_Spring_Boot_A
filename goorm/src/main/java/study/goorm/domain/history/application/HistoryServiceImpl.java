@@ -120,9 +120,6 @@ public class HistoryServiceImpl implements HistoryService {
                 .map(Hashtag::getName)
                 .toList();
 
-        // 댓글 갯수 세기 => 이건 생각 못함
-        long commentCount = commentRepository.countByHistoryId(historyId);
-
         List<Cloth> cloths =  clothRepository.findByMemberId(member.getId());
 
         List<HistoryResponseDTO.HistoryGetDailyCloth> clothList = cloths.stream()
