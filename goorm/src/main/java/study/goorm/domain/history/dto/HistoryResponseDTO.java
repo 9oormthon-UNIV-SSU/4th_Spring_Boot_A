@@ -17,13 +17,13 @@ public class HistoryResponseDTO {
     public static class HistoryGetMonthly {
         private Long memberId;
         private String nickName;
-        private List<HistoryGet> histories;
+        private List<HistoryGetMonthlyResult> histories;
     }
     @Builder
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HistoryGet {
+    public static class HistoryGetMonthlyResult {
         private Long historyId;
         private LocalDate date;
         private String imageUrl;
@@ -39,13 +39,13 @@ public class HistoryResponseDTO {
         private String nickName;
         private String clokeyId;
         private String content;
-        private List<HistoryImage> images;
+        private List<String> imageUrl;
         private List<String> hashtags;
         private int likeCount;
         private int commentCount;
         private boolean liked;
         private LocalDate date;
-        private List<HistoryGetCloth> clothes;
+        private List<HistoryGetDailyCloth> cloths;
         private long clothId;
         private long historyId;
     }
@@ -53,7 +53,7 @@ public class HistoryResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HistoryGetCloth {
+    public static class HistoryGetDailyCloth {
         private Long clothId;
         private String clothImageUrl;
         private String clothName;
@@ -64,6 +64,14 @@ public class HistoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HistoryCreateResult {
+        private Long historyId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryUpdateResult {
         private Long historyId;
     }
 }

@@ -19,6 +19,17 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
+    /**
+     * Multipart + JSON 동시에 Swagger에서 테스트할 때
+     * content-type null → application/octet-stream 으로 처리되어 Jackson에서 인식 못하는 문제를 해결
+     */
+    @Autowired
+    public void configureMessageConverter(MappingJackson2HttpMessageConverter converter) {
+        List<MediaType> supportMediaTypes = new ArrayList<>(converter.getSupportedMediaTypes());
+        supportMediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
+        converter.setSupportedMediaTypes(supportMediaTypes);
+    }
+
     @Bean
     public OpenAPI goormStudyAPI() {
         Info info = new Info()

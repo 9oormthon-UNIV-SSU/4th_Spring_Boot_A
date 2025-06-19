@@ -8,6 +8,7 @@ import study.goorm.domain.history.domain.entity.HistoryImage;
 import java.util.List;
 
 public interface HashtagHistoryRepository extends JpaRepository<HashtagHistory, Long>{
+    List<HashtagHistory> findByHistoryId(Long historyId);
     void deleteByHistory(History history);
-    List<HashtagHistory> findAllByHistory(History history);
+    void deleteAllByHistory(History history);
 }

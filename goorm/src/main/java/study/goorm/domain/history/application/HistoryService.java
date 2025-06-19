@@ -6,11 +6,12 @@ import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.member.domain.entity.Member;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface HistoryService {
-    HistoryResponseDTO.HistoryGetMonthly getHistoryGetMonthly(String clokeyId, LocalDate month);
+    HistoryResponseDTO.HistoryGetMonthly getHistoryGetMonthly(String clokeyId, String month);
     HistoryResponseDTO.HistoryGetDaily getHistoryGetDaily(Long historyId);
+    HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, List<MultipartFile> image);
+    HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest, List<MultipartFile> imageFile, Long historyId);
     void deleteHistory(Long historyId);
-    HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, MultipartFile image);
-    void updateHistory(Long historyId, HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest, MultipartFile image);
 }

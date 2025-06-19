@@ -23,6 +23,7 @@ import study.goorm.global.error.code.status.SuccessStatus;
 import study.goorm.domain.history.application.HistoryService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 public class HistoryRestController {
     private final HistoryService historyService;
 
+    // 월별 기록 조회
     @GetMapping("/monthly")
     @Operation(summary = "특정 회원의 월별 기록을 조회하는 API", description = "query string으로 clokeyId, month를 넘겨주세요.")
     @ApiResponses({
@@ -42,13 +44,14 @@ public class HistoryRestController {
     })
     public BaseResponse<HistoryResponseDTO.HistoryGetMonthly> getMonthlyHistories(
             @RequestParam(value = "clokeyId") String clokeyId,
-            @RequestParam LocalDate month
+            @RequestParam String month
     ) {
         HistoryResponseDTO.HistoryGetMonthly result = historyService.getHistoryGetMonthly(clokeyId, month);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_GET_MONTH, result);
     }
 
+    // 일별 기록 조회
     @GetMapping("/{historyId}")
     @Operation(summary = "특정 회원의 특정 일의 기록을 확인할 수 있는 API", description = "path variable로 historyId를 넘겨주세요.")
     @ApiResponses({
@@ -65,6 +68,7 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_GET_MONTH, result);
     }
 
+    // 기록 삭제
     @DeleteMapping("/{historyId}")
     @Operation(summary = "특정 기록을 삭제하는 API", description = "path variable로 historyId를 넘겨주세요.")
     @ApiResponses({
@@ -82,6 +86,7 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
     }
 
+    // 옷 기록 추가
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "새로운 옷 기록을 생성하는 API", description = "request body에 HistoryCreateRequest 형식의 데이터를 전달해주세요.")
     @ApiResponses({
@@ -89,7 +94,7 @@ public class HistoryRestController {
     })
     public BaseResponse<HistoryResponseDTO.HistoryCreateResult> createHistory(
             @RequestPart("historyCreateRequest") HistoryRequestDTO.HistoryCreateRequest historyCreateRequest,
-            @RequestPart("imageFile") MultipartFile imageFile
+            @RequestPart("imageFile") List<MultipartFile> imageFile
     ) {
         HistoryResponseDTO.HistoryCreateResult result = historyService.createHistory(historyCreateRequest,imageFile);
 
@@ -99,17 +104,17 @@ public class HistoryRestController {
     @PatchMapping(value = "/{historyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "특정날짜 옷 기록을 수정하는 API", description = "path variable로 historyId를 넘겨주세요.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_203", description = "OK, 기록이 성공적으로 수정되었습니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_200", description = "OK, 기록이 성공적으로 수정되었습니다."),
     })
     @Parameters({
             @Parameter(name = "historyId", description = "기록의 id, path variable 입니다."),
     })
     public BaseResponse<ClothResponseDTO.ClothCreateResult> patchHistory(
             @PathVariable Long historyId,
-            @RequestPart("historyUpdateRequest") HistoryRequestDTO.HistoryCreateRequest historyUpdateRequest,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+            @RequestPart("historyUpdateRequest") @Valid HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest,
+            @RequestPart("imageFile") List<MultipartFile> imageFile
     ) {
-        historyService.updateHistory(historyId, historyUpdateRequest, imageFile);
+        HistoryResponseDTO.HistoryUpdateResult result = historyService.updateHistory(historyUpdateRequest, imageFile, historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, null);
     }
