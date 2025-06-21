@@ -18,13 +18,12 @@ import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +39,7 @@ public class HistoryServiceImpl implements HistoryService {
     private final ClothRepository clothRepository;
     private final HashtagRepository hashtagRepository;
     private final CommentRepository commentRepository;
+    private final MemberLikeRepository memberLikeRepository;
 
 
     @Override
@@ -60,7 +60,7 @@ public class HistoryServiceImpl implements HistoryService {
         try {
             YearMonth.parse(month);
         } catch (DateTimeException e) {
-            e.printStackTrace();
+            throw new HistoryExeption(ErrorStatus.INVALID_DATE_FORMAT);
         }
 
         // 기록 조회
@@ -80,7 +80,7 @@ public class HistoryServiceImpl implements HistoryService {
                         img -> img.getHistory().getId(),
                         Collectors.mapping(HistoryImage::getImageUrl, Collectors.collectingAndThen(
                                 Collectors.toList(),
-                                list -> list.isEmpty() ? "private" : list.get(0)
+                                list -> list.isEmpty() ? "null" : list.get(0)
                         ))
                 ));
 
@@ -136,15 +136,33 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional
     public void deleteHistory(Long historyId) {
+        // History 조회
         History history = historyRepository.findById(historyId)
-                .orElseThrow(()-> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+                .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
 
-        //매핑 테이블 삭제
-        hashtagHistoryRepository.deleteByHistory(history); // 해시태그 삭제
-        historyImageRepository.deleteAllByHistory(history); // 이미지 삭제
-        historyClothRepository.deleteByHistory(history); // 옷 매핑 삭제
+        // 댓글 전부 삭제
+        commentRepository.deleteByHistory(history);
 
-        //최종 옷 삭제
+        // 좋아요 전부 삭제
+        memberLikeRepository.deleteByHistory(history);
+
+        // 옷 착용 횟수 감소
+        List<HistoryCloth> historyClothes = historyClothRepository.findByHistory(history);
+        for (HistoryCloth hc : historyClothes) {
+            Cloth cloth = hc.getCloth();
+            cloth.decreaseWearCount();
+        }
+
+        // HashtagHistory 삭제
+        hashtagHistoryRepository.deleteByHistory(history);
+
+        // 이미지 삭제
+        historyImageRepository.deleteAllByHistory(history);
+
+        // History-Cloth 매핑 row 삭제
+        historyClothRepository.deleteByHistory(history);
+
+        // 최종 History 삭제
         historyRepository.delete(history);
     }
 
@@ -239,7 +257,7 @@ public class HistoryServiceImpl implements HistoryService {
         History history = historyRepository.findById(historyId)
                 .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
 
-        // content & visibility 수정
+        // content 수정
         history.update(historyUpdateRequest.getContent());
 
         // 기존 clothes & hashtag 관계 삭제
@@ -286,13 +304,36 @@ public class HistoryServiceImpl implements HistoryService {
 
         hashtagHistoryRepository.saveAll(hashtagHistories);
 
-        // 기존 이미지 삭제
-        List<HistoryImage> existingImages = historyImageRepository.findAllByHistory(history);
-
-
         // DB에서 HistoryImage 삭제
         historyImageRepository.deleteAllByHistory(history);
 
+        String uploadDir = "history/"; // 상대 경로 또는 절대 경로
+        List<HistoryImage> newHistoryImages = new ArrayList<>();
+
+        for (MultipartFile file : images) {
+            if (file.isEmpty()) continue;
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String uniqueName = UUID.randomUUID().toString() + extension;
+
+            File dest = new File(uploadDir + uniqueName);
+            try {
+                file.transferTo(dest); // 실제 파일 저장
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 저장 실패", e);
+            }
+
+            String imageUrl = "/uploads/history/" + uniqueName; // 클라이언트 접근 경로
+            HistoryImage historyImage = HistoryImage.builder()
+                    .history(history)
+                    .imageUrl(imageUrl)
+                    .build();
+
+            newHistoryImages.add(historyImage);
+        }
+
+        historyImageRepository.saveAll(newHistoryImages);
 
         return HistoryConverter.toHistoryUpdateResult(history);
     }

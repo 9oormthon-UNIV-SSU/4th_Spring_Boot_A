@@ -14,6 +14,7 @@ public interface HistoryClothRepository extends JpaRepository<HistoryCloth, Long
     void deleteAllByCloth(Cloth cloth);
 
     // History
+    List<HistoryCloth> findByHistory(History history);
     void deleteByHistory(History history);
     void deleteAllByHistory(History history);
 }
