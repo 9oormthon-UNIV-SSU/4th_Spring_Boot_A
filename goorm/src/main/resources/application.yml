@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: jwt, aws #jwt.yml 불러오기
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}

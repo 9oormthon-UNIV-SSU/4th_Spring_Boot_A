@@ -112,6 +112,7 @@ public class HistoryServiceImpl implements HistoryService {
         // 해시태그 조회
         List<HashtagHistory> hashtagHistories = hashtagHistoryRepository.findByHistoryId(historyId);
 
+        //=> fetch join or jpql로 바로 가져오기
         // 기록의 해시태그 조회
         List<Hashtag> hashtags = hashtagHistories.stream()
                 .map(HashtagHistory::getHashtag)
@@ -173,6 +174,8 @@ public class HistoryServiceImpl implements HistoryService {
         if (image.size() >= 10) {
             throw new HistoryExeption(ErrorStatus.TOO_MANY_IMAGES);
         }
+
+        // 이미 그 날짜에 history 검증.
 
         // member 1번이 로그인 한 유저라고 가정
         Member member = memberRepository.findById(1L)
