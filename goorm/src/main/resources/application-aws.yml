@@ -1,9 +1,0 @@
-cloud:
-  aws:
-    s3:
-      bucket: <버킷 이름>
-    stack.auto: false
-    region.static: ap-northeast-2
-    credentials:
-      accessKey: <발급 받은 accessKey>
-      secretKey: <발급 받은 secretKey>
