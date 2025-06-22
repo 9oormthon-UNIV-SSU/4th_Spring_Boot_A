@@ -36,5 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/application-aws.yml
+goorm/src/main/resources/application-aws.yml
 
