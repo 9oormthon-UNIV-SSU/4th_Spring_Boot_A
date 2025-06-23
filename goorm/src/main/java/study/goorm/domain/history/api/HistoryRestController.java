@@ -110,15 +110,28 @@ public class HistoryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "CREATED, 기록이 성공적으로 생성되었습니다."),
     })
-    public BaseResponse<HistoryResponseDTO.HistoryCreateResult> patchHistory(
-            @RequestPart("historyPatchRequest") @Valid HistoryRequestDTO.HistoryPatchRequest historyPatchRequest,
+    public BaseResponse<Void> updateHistory(
+            @RequestPart("historyUpdateRequest") @Valid HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest,
             @RequestPart("imageFile") List<MultipartFile> imageFiles,
             @PathVariable(value = "history-id") Long historyId
     ) {
-        //HistoryResponseDTO.HistoryPatchResult result = historyService.patchHistory(historyPatchRequest, imageFiles, historyId);
 
-        historyService.patchHistory(historyPatchRequest, imageFiles, historyId);
+        historyService.updateHistory(historyUpdateRequest, imageFiles, historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, null);
+    }
+
+    @PatchMapping(path = "/histories/comments/{comment-id}")
+    @Operation(summary = "댓글을 수정하는 API", description = "request body에 CommentUpdateRequest 형식의 데이터를 전달해주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMENT_200", description = "CREATED, 댓글이 성공적으로 수정되었습니다."),
+    })
+    public BaseResponse<Void> updateComment(
+          @Parameter(description = "수정할 댓글의 ID") @PathVariable("comment-id") Long commentId,
+            @RequestBody @Valid HistoryRequestDTO.CommentUpdateRequest commentUpdateRequest
+    ) {
+        historyService.updateComment(commentUpdateRequest, commentId);
+
+        return BaseResponse.onSuccess(SuccessStatus.COMMENT_UPDATED, null);
     }
 }

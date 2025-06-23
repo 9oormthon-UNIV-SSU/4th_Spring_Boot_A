@@ -237,17 +237,17 @@ public class HistoryServiceImpl implements HistoryService{
 
     @Override
     @Transactional
-    public void patchHistory(HistoryRequestDTO.HistoryPatchRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId){
+    public void updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId){
         // (memberId 1이 사용자라고 가정)
         Long loginMemberId = 1L;
         Member member = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
-        History history = historyRepository.findById(historyId)
+        History history = historyRepository.findByIdWithMember(historyId)
                 .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
 
         // 수정하려는 기록이 본인 기록이 아닐 때 예외 처리
-        if(!history.getMember().getId().equals(loginMemberId)) {
-            throw new HistoryException(ErrorStatus.HISTORY_PATCH_DENIED);
+        if (!history.isOwnedBy(member)) {
+            throw new HistoryException(ErrorStatus.HISTORY_UPDATE_DENIED);
         }
 
         // 이미지 업로드 개수 제한 <= 10 and != 0
@@ -313,6 +313,24 @@ public class HistoryServiceImpl implements HistoryService{
         // 기록의 기존 해시태그 모두 지우고 새로 업데이트
         hashtagHistoryRepository.deleteAllByHistory(history);
         hashtagHistoryRepository.saveAll(hashtagHistories);
+    }
+
+    @Override
+    @Transactional
+    public void updateComment(HistoryRequestDTO.CommentUpdateRequest commentUpdateRequest, Long commentId) {
+        // (memberId 1이 사용자라고 가정)
+        Long loginMemberId = 1L;
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+        Comment comment = commentRepository.findByIdWithMember(commentId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        // 수정하려는 댓글이 본인 댓글이 아닐 때 예외 처리
+        if(!comment.isOwnedBy(member)) {
+            throw new HistoryException((ErrorStatus.COMMENT_UPDATE_DENIED));
+        }
+
+        comment.setContent(commentUpdateRequest.getContent());
     }
 
     @Override

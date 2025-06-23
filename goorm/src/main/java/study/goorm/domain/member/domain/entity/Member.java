@@ -8,6 +8,8 @@ import study.goorm.domain.model.entity.BaseEntity;
 import study.goorm.domain.model.enums.MemberStatus;
 import study.goorm.domain.model.enums.SocialType;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @Setter
@@ -45,4 +47,16 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING) //활성화여부
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'", nullable = false)
     private MemberStatus status;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

@@ -39,7 +39,9 @@ public enum ErrorStatus implements BaseErrorCode {
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "HISTORY_4003", "기록의 사진은 10장 미만이어야 합니다."),
     CLOTHES_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4004", "중복되는 옷이 등록되었습니다."),
     HASHTAGS_NOT_UNIQUE(HttpStatus.BAD_REQUEST, "HISTORY_4005", "중복되는 해시태그가(hashtag List) 등록되었습니다."),
-    HISTORY_PATCH_DENIED(HttpStatus.BAD_REQUEST, "HISTORY_4006", "해당 사용자의 기록이 아닙니다.");
+    HISTORY_UPDATE_DENIED(HttpStatus.BAD_REQUEST, "HISTORY_4006", "해당 사용자의 기록이 아닙니다."),
+    NO_SUCH_COMMENT(HttpStatus.BAD_REQUEST, "HISTORY_4007", "존재하지 않는 댓글 ID입니다."),
+    COMMENT_UPDATE_DENIED(HttpStatus.BAD_REQUEST, "HISTORY_4008", "해당 사용자의 댓글이 아닙니다.");
 
 
     private final HttpStatus httpStatus;
