@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.member.domain.entity.Member;
 
+import java.util.List;
 
 
 public interface ClothRepository extends JpaRepository<Cloth, Long> {
@@ -21,4 +22,6 @@ public interface ClothRepository extends JpaRepository<Cloth, Long> {
 
     // 4. createdAt 내림차순
     Page<Cloth> findByMemberOrderByCreatedAtDesc(Member member, Pageable pageable);
+
+    List<Cloth> findByMemberId(Long memberId);
 }
