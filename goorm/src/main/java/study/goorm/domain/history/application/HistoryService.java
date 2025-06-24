@@ -14,4 +14,6 @@ public interface HistoryService {
     HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateResult, List<MultipartFile> image);
     HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest, List<MultipartFile> imageFile, Long historyId);
     void deleteHistory(Long historyId);
+    HistoryResponseDTO.HistoryLikeResult changeLikeStatus(Long memberId, Long historyId, boolean isLiked);
+    HistoryResponseDTO.HistoryLikedUserResultList getLikedUsers(Long memberId, Long historyId);
 }

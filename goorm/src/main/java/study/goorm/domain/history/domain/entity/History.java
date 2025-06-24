@@ -47,5 +47,13 @@ public class History extends BaseEntity {
     public void update(String content) {
         this.content = content;
     }
+
+    public void decreaseLikes() {
+        this.likes = likes-1;
+    }
+
+    public void increaseLikes() {
+        this.likes = likes+1;
+    }
 }
 

@@ -1,5 +1,6 @@
 package study.goorm.domain.history.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -73,5 +74,39 @@ public class HistoryResponseDTO {
     @AllArgsConstructor
     public static class HistoryUpdateResult {
         private Long historyId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLikeResult {
+
+        private Long historyId;
+
+        private boolean liked;
+
+        private int likeCount;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLikedUserResultList {
+        List<HistoryLikedUserResult> likedUsers;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLikedUserResult {
+        private Long memberId;
+        private String clokeyId;
+        private String nickname;
+        private boolean followStatus;
+        private String imageUrl;
+        private boolean isMe;
     }
 }

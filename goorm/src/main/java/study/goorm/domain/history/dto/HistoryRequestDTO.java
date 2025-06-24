@@ -47,4 +47,16 @@ public class HistoryRequestDTO {
 
 //        private Visibility visibility;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLike {
+
+        private Long historyId;
+
+        private boolean liked;
+
+    }
 }

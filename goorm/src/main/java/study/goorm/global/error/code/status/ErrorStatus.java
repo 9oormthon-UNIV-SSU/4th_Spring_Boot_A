@@ -34,7 +34,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4001", "잘못된 날짜 형식입니다."),
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4002","존재하지 않는 기록 ID 입니다."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "HISTORY_4002","이미지 업로드 개수를 초과했습니다"),
-    NO_PERMISSION_FOR_RECORD(HttpStatus.BAD_REQUEST, "HISTORY_4006","기록에 접근 권한이 없습니다.")
+    NO_PERMISSION_FOR_RECORD(HttpStatus.BAD_REQUEST, "HISTORY_4006","기록에 접근 권한이 없습니다."),
+    INVALID_LIKED(HttpStatus.BAD_REQUEST,"HISTORY_4004","잘못된 isLiked 값을 입력했습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String code;

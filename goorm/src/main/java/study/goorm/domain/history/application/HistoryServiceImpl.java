@@ -13,6 +13,7 @@ import study.goorm.domain.history.domain.repository.*;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryExeption;
+import study.goorm.domain.member.domain.dto.LikedMemberDTO;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
@@ -339,5 +340,42 @@ public class HistoryServiceImpl implements HistoryService {
         historyImageRepository.saveAll(newHistoryImages);
 
         return HistoryConverter.toHistoryUpdateResult(history);
+    }
+
+    // 좋아요 기능
+    @Override
+    @Transactional
+    public HistoryResponseDTO.HistoryLikeResult changeLikeStatus(Long memberId, Long historyId, boolean isLiked) {
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+
+        // 이미 게시물이 좋아요한 상태일 경우
+        if (isLiked) {
+            history.decreaseLikes();
+            // 해당 게시물 좋아요 취소를 통해 멤버아이디와 기록아이디 삭제
+            memberLikeRepository.deleteByMemberIdAndHistoryId(memberId, historyId);
+        }
+        else { // 게시물이 좋아요한 상태가 아닐 경우
+            history.increaseLikes();
+            // 해당 게시물 좋아요를 통해 멤버아이디와 기록아이디 등록
+            MemberLike memberLike = MemberLike.builder()
+                    .history(history)
+                    .member(memberRepository.findMemberById(memberId))
+                    .build();
+            memberLikeRepository.save(memberLike);
+        }
+
+        return HistoryConverter.toHistoryLikeResult(history, isLiked);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.HistoryLikedUserResultList getLikedUsers(
+            Long loginMemberId, Long historyId
+    ) {
+        List<LikedMemberDTO> likedMembers =
+                memberRepository.findLikedMembersWithFollowInfo(historyId, loginMemberId);
+
+        return HistoryConverter.toLikedUserResult(likedMembers);
     }
 }

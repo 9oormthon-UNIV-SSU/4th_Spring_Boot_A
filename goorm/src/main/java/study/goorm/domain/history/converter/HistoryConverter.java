@@ -2,11 +2,14 @@ package study.goorm.domain.history.converter;
 
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.entity.HistoryImage;
+import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
+import study.goorm.domain.member.domain.dto.LikedMemberDTO;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,32 @@ public class HistoryConverter {
     public static HistoryResponseDTO.HistoryUpdateResult toHistoryUpdateResult(History history){
         return HistoryResponseDTO.HistoryUpdateResult.builder()
                 .historyId(history.getId())
+                .build();
+    }
+
+    public static HistoryResponseDTO.HistoryLikeResult toHistoryLikeResult(History history, boolean isLiked){
+        return HistoryResponseDTO.HistoryLikeResult.builder()
+                .historyId(history.getId())
+                .liked(!isLiked)
+                .likeCount(history.getLikes())
+                .build();
+    }
+
+    public static HistoryResponseDTO.HistoryLikedUserResultList toLikedUserResult(List<LikedMemberDTO> likedMembers){
+        List<HistoryResponseDTO.HistoryLikedUserResult> likedUserResults = new ArrayList<>();
+        for (int i = 0; i < likedMembers.size(); i++) {
+            LikedMemberDTO member = likedMembers.get(i);
+            likedUserResults.add(HistoryResponseDTO.HistoryLikedUserResult.builder()
+                    .clokeyId(member.getClokeyId())
+                    .imageUrl(member.getImageUrl())
+                    .followStatus(member.getIsFollowed())
+                    .memberId(member.getMemberId())
+                    .nickname(member.getNickname())
+                    .isMe(member.getIsMyself())
+                    .build());
+        }
+        return HistoryResponseDTO.HistoryLikedUserResultList.builder()
+                .likedUsers(likedUserResults)
                 .build();
     }
 }
