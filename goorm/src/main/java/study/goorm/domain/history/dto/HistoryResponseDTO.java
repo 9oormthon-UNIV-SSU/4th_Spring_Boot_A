@@ -1,5 +1,8 @@
 package study.goorm.domain.history.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -108,5 +111,66 @@ public class HistoryResponseDTO {
         private boolean followStatus;
         private String imageUrl;
         private boolean isMe;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCommentWriteResult {
+        Long commentId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCommentResult {
+        List<CommentResult> comments;
+        int totalPage;
+        int totalElements;
+
+        @JsonProperty("isFirst") // JSON 직렬화 시 "isFirst" 사용
+        private boolean isFirst;
+
+        @JsonIgnore // "first" 필드 직렬화 방지
+        public boolean isFirst() {
+            return isFirst;
+        }
+
+        @JsonProperty("isLast") // JSON 직렬화 시 "isLast" 사용
+        private boolean isLast;
+
+        @JsonIgnore // "last" 필드 직렬화 방지
+        public boolean isLast() {
+            return isLast;
+        }
+    }
+
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonPropertyOrder({"commentId", "clokeyId", "nickName", "userImageUrl", "content", "replyResults"})
+    public static class CommentResult {
+        Long commentId;
+        String clokeyId;
+        String nickName;
+        String userImageUrl;
+        String content;
+        List<ReplyResult> replyResults;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReplyResult {
+        Long commentId;
+        String clokeyId;
+        String nickName;
+        String userImageUrl;
+        String content;
     }
 }

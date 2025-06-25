@@ -153,4 +153,81 @@ public class HistoryRestController {
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_LIKE_USER, result);
     }
+
+    // 댓글 추가
+    @PostMapping("/{historyId}/comments")
+    @Operation(summary = "댓글을 남길 수 있는 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_201", description = "성공적으로 댓글이 생성되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "historyId", description = "댓글을 남기고자 하는 기록의 ID")
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryCommentWriteResult> writeComments(
+            @PathVariable @Valid Long historyId,
+            @RequestBody @Valid HistoryRequestDTO.HistoryCommentWrite request,
+            Member member
+    ) {
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_COMMENT_CREATED, historyService.writeComment(historyId, request.getCommentId(), member.getId(), request.getContent()));
+
+    }
+
+    // 댓글 조회
+    @GetMapping("/{historyId}/comments")
+    @Operation(summary = "특정 기록의 댓글을 읽어올 수 있는 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_200", description = "OK, 성공적으로 조회되었습니다.")
+    })
+    @Parameters({
+            @Parameter(name = "historyId", description = "기록의 id, path variable 입니다."),
+            @Parameter(name = "page", description = "페이징 관련 query parameter")
+
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryCommentResult> getComments(
+            @PathVariable @Valid Long historyId,
+            @RequestParam(value = "page") @Valid @CheckPage int page
+    ) {
+
+        HistoryResponseDTO.HistoryCommentResult result = historyService.getComments(historyId, page - 1);
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_SUCCESS, result);
+    }
+
+    @DeleteMapping(value = "/comments/{commentId}")
+    @Operation(summary = "댓글을 삭제하는 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_204", description = "댓글이 성공적으로 삭제되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "commentId", description = "삭제하고자 하는 댓글의 ID")
+    })
+    public BaseResponse<Void> deleteComment(
+            Member member,
+            @PathVariable Long commentId
+    ) {
+
+        historyService.deleteComment(commentId, member.getId());
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_COMMENT_DELETED, null);
+    }
+
+    @PatchMapping(value = "/comments/{commentId}")
+    @Operation(summary = "댓글을 수정하는 API")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_204", description = "댓글이 성공적으로 수정되었습니다."),
+    })
+    @Parameters({
+            @Parameter(name = "commentId", description = "수정하고자 하는 댓글의 ID")
+    })
+    public BaseResponse<Void> updateComment(
+            @RequestBody @Valid HistoryRequestDTO.HistoryUpdateComment updateCommentRequest,
+            @PathVariable Long commentId,
+            Member member
+    ) {
+
+        historyService.updateComment(updateCommentRequest, commentId, member.getId());
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_COMMENT_UPDATED, null);
+    }
+
 }

@@ -3,6 +3,7 @@ package study.goorm.domain.history.dto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,4 +60,26 @@ public class HistoryRequestDTO {
         private boolean liked;
 
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryCommentWrite {
+
+        Long commentId;
+
+        @NotBlank
+        String content;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryUpdateComment {
+        @NotBlank
+        String content;
+    }
+
 }

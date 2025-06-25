@@ -1,7 +1,9 @@
 package study.goorm.domain.history.converter;
 
+import study.goorm.domain.history.domain.entity.Comment;
 import study.goorm.domain.history.domain.entity.History;
 import study.goorm.domain.history.domain.entity.HistoryImage;
+import study.goorm.domain.history.dto.HistoryCommentParamDTO;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.member.domain.dto.LikedMemberDTO;
@@ -11,6 +13,7 @@ import study.goorm.domain.cloth.domain.entity.Cloth;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class HistoryConverter {
@@ -24,7 +27,7 @@ public class HistoryConverter {
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryGetDaily toHistoryGetDaily(History history, List<String> images, Member member, List<String> hashtags, List<HistoryResponseDTO.HistoryGetDailyCloth> cloths){
+    public static HistoryResponseDTO.HistoryGetDaily toHistoryGetDaily(History history, List<String> images, Member member, List<String> hashtags, List<HistoryResponseDTO.HistoryGetDailyCloth> cloths) {
         return HistoryResponseDTO.HistoryGetDaily.builder()
                 .memberId(member.getId())
                 .historyId(history.getId())
@@ -42,19 +45,19 @@ public class HistoryConverter {
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history){
+    public static HistoryResponseDTO.HistoryCreateResult toHistoryCreateResult(History history) {
         return HistoryResponseDTO.HistoryCreateResult.builder()
                 .historyId(history.getId())
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryUpdateResult toHistoryUpdateResult(History history){
+    public static HistoryResponseDTO.HistoryUpdateResult toHistoryUpdateResult(History history) {
         return HistoryResponseDTO.HistoryUpdateResult.builder()
                 .historyId(history.getId())
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryLikeResult toHistoryLikeResult(History history, boolean isLiked){
+    public static HistoryResponseDTO.HistoryLikeResult toHistoryLikeResult(History history, boolean isLiked) {
         return HistoryResponseDTO.HistoryLikeResult.builder()
                 .historyId(history.getId())
                 .liked(!isLiked)
@@ -62,7 +65,7 @@ public class HistoryConverter {
                 .build();
     }
 
-    public static HistoryResponseDTO.HistoryLikedUserResultList toLikedUserResult(List<LikedMemberDTO> likedMembers){
+    public static HistoryResponseDTO.HistoryLikedUserResultList toLikedUserResult(List<LikedMemberDTO> likedMembers) {
         List<HistoryResponseDTO.HistoryLikedUserResult> likedUserResults = new ArrayList<>();
         for (int i = 0; i < likedMembers.size(); i++) {
             LikedMemberDTO member = likedMembers.get(i);
@@ -77,6 +80,60 @@ public class HistoryConverter {
         }
         return HistoryResponseDTO.HistoryLikedUserResultList.builder()
                 .likedUsers(likedUserResults)
+                .build();
+    }
+
+    public static HistoryResponseDTO.HistoryCommentWriteResult toCommentWriteResult(Comment comment) {
+        return HistoryResponseDTO.HistoryCommentWriteResult.builder()
+                .commentId(comment.getId())
+                .build();
+    }
+
+    public static HistoryResponseDTO.HistoryCommentResult toHistoryCommentResult(
+            List<HistoryCommentParamDTO> flatComments,
+            int page,
+            int pageSize,
+            int totalRootCount
+    ) {
+        // 부모 댓글 id를 기준
+        Map<Long, List<HistoryCommentParamDTO>> repliesGrouped = flatComments.stream()
+                .filter(dto -> !dto.isRoot()) // 대댓글
+                .collect(Collectors.groupingBy(HistoryCommentParamDTO::getParentId));
+
+        // 댓글과 대댓글 연결해주기
+        List<HistoryResponseDTO.CommentResult> rootResults = flatComments.stream()
+                .filter(HistoryCommentParamDTO::isRoot)
+                .map(root -> HistoryResponseDTO.CommentResult.builder()
+                        .commentId(root.getCommentId())
+                        .content(root.getContent())
+                        .clokeyId(root.getClokeyId())
+                        .nickName(root.getNickname())
+                        .userImageUrl(root.getProfileImageUrl())
+                        .replyResults(
+                                repliesGrouped.getOrDefault(root.getCommentId(), List.of()).stream()
+                                        .map(reply -> HistoryResponseDTO.ReplyResult.builder()
+                                                .commentId(reply.getCommentId())
+                                                .content(reply.getContent())
+                                                .clokeyId(reply.getClokeyId())
+                                                .nickName(reply.getNickname())
+                                                .userImageUrl(reply.getProfileImageUrl())
+                                                .build())
+                                        .toList()
+                        )
+                        .build())
+                .toList();
+
+        int totalPage = (int) Math.ceil((double) totalRootCount / pageSize);
+        int totalElements = rootResults.stream()
+                .mapToInt(r -> 1 + (r.getReplyResults() != null ? r.getReplyResults().size() : 0))
+                .sum();
+
+        return HistoryResponseDTO.HistoryCommentResult.builder()
+                .comments(rootResults)
+                .totalPage(totalPage)
+                .totalElements(totalElements)
+                .isFirst(page == 0)
+                .isLast(page + 1 == totalPage)
                 .build();
     }
 }

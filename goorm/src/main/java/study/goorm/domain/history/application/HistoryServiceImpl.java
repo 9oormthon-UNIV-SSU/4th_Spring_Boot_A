@@ -1,6 +1,8 @@
 package study.goorm.domain.history.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +12,7 @@ import study.goorm.domain.cloth.exception.ClothException;
 import study.goorm.domain.history.converter.HistoryConverter;
 import study.goorm.domain.history.domain.entity.*;
 import study.goorm.domain.history.domain.repository.*;
+import study.goorm.domain.history.dto.HistoryCommentParamDTO;
 import study.goorm.domain.history.dto.HistoryRequestDTO;
 import study.goorm.domain.history.dto.HistoryResponseDTO;
 import study.goorm.domain.history.exception.HistoryExeption;
@@ -51,10 +54,10 @@ public class HistoryServiceImpl implements HistoryService {
         // clokeyId가 null인 경우
         if (clokeyId == null) {
             member = memberRepository.findByClokeyId("1")
-                    .orElseThrow(()-> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
+                    .orElseThrow(() -> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
         } else { // clokeyId가 있는 경우
             member = memberRepository.findByClokeyId(clokeyId)
-                    .orElseThrow(()-> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
+                    .orElseThrow(() -> new MemberException(ErrorStatus.NO_SUCH_MEMBER));
         }
 
         // Month 형식 검사
@@ -122,7 +125,7 @@ public class HistoryServiceImpl implements HistoryService {
                 .map(Hashtag::getName)
                 .toList();
 
-        List<Cloth> cloths =  clothRepository.findByMemberId(member.getId());
+        List<Cloth> cloths = clothRepository.findByMemberId(member.getId());
 
         List<HistoryResponseDTO.HistoryGetDailyCloth> clothList = cloths.stream()
                 .map(cloth -> HistoryResponseDTO.HistoryGetDailyCloth.builder()
@@ -347,15 +350,14 @@ public class HistoryServiceImpl implements HistoryService {
     @Transactional
     public HistoryResponseDTO.HistoryLikeResult changeLikeStatus(Long memberId, Long historyId, boolean isLiked) {
         History history = historyRepository.findById(historyId)
-                .orElseThrow(()-> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+                .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
 
         // 이미 게시물이 좋아요한 상태일 경우
         if (isLiked) {
             history.decreaseLikes();
             // 해당 게시물 좋아요 취소를 통해 멤버아이디와 기록아이디 삭제
             memberLikeRepository.deleteByMemberIdAndHistoryId(memberId, historyId);
-        }
-        else { // 게시물이 좋아요한 상태가 아닐 경우
+        } else { // 게시물이 좋아요한 상태가 아닐 경우
             history.increaseLikes();
             // 해당 게시물 좋아요를 통해 멤버아이디와 기록아이디 등록
             MemberLike memberLike = MemberLike.builder()
@@ -377,5 +379,59 @@ public class HistoryServiceImpl implements HistoryService {
                 memberRepository.findLikedMembersWithFollowInfo(historyId, loginMemberId);
 
         return HistoryConverter.toLikedUserResult(likedMembers);
+    }
+
+    @Override
+    @Transactional
+    public HistoryResponseDTO.HistoryCommentWriteResult writeComment(Long historyId, Long commentId, Long memberId, String content) {
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
+
+        Member member = memberRepository.findMemberById(memberId);
+
+        Comment parentComment = null;
+
+        if (commentId != null) {
+            parentComment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_COMMENT));
+            ;
+        }
+
+        Comment comment = Comment.builder()
+                .content(content)
+                .comment(parentComment)
+                .history(history)
+                .member(member)
+                .build();
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return HistoryConverter.toCommentWriteResult(savedComment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.HistoryCommentResult getComments(Long historyId, int page) {
+        // 한 페이지당 10개씩
+        Pageable pageable = PageRequest.of(page, 10);
+        List<HistoryCommentParamDTO> commentsDTO =
+                historyRepository.findFlatCommentsByHistoryId(historyId, pageable);
+
+        int totalRootCount = commentRepository.countActiveRootComments(historyId);
+        return HistoryConverter.toHistoryCommentResult(commentsDTO, page, 20, totalRootCount);
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(Long commentId, Long memberId) {
+        commentRepository.deleteChildrenComment(commentId);
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    @Transactional
+    public void updateComment(HistoryRequestDTO.HistoryUpdateComment updateCommentRequest, Long commentId, Long memberId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new HistoryExeption(ErrorStatus.NO_SUCH_COMMENT));
+        comment.updateContent(updateCommentRequest.getContent());
     }
 }
