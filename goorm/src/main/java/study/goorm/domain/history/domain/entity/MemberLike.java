@@ -11,6 +11,7 @@ import study.goorm.domain.model.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "history_id"}))
+
 public class MemberLike extends BaseEntity {
 
     @Id
