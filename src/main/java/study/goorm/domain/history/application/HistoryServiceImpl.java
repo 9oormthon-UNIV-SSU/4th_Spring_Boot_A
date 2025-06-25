@@ -34,7 +34,10 @@ public class HistoryServiceImpl implements HistoryService {
     private final ClothRepository clothRepository;
     private final HistoryClothRepository historyClothRepository;
     private final HashtagRepository hashtagRepository;
+    private final MemberLikeRepository memberLikeRepository;
     private final MinioClient minioClient;
+
+    public static final int IMAGE_LIMIT = 10;
 
     // 월별 기록 조회
     @Transactional(readOnly = true)
@@ -58,12 +61,11 @@ public class HistoryServiceImpl implements HistoryService {
                     .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
         }
 
-        // 기록 조회
+        // 기록 조회, 리스트가 비어있다면 빈 리스트 반환
         List<History> histories = historyRepository.findHistoriesByMemberIdAndYearMonth(member.getId(), date);
         if (histories.isEmpty()) {
-            throw new HistoryException(ErrorStatus.NO_SUCH_HISTORY);
+            return HistoryConverter.toMonthlyHistoryPreview(member, Collections.emptyList(), Collections.emptyMap());
         }
-
 
         List<Long> historyIds = histories.stream()
                 .map(History::getId)
@@ -72,7 +74,6 @@ public class HistoryServiceImpl implements HistoryService {
         // 사진 조회
         List<HistoryImage> historyImages = historyImageRepository.findAllByHistoryIdIn(historyIds);
 
-        // historyId → 첫 번째 이미지 URL
         Map<Long, String> firstImagesOfHistory = historyImages.stream()
                 .collect(Collectors.groupingBy(
                         img -> img.getHistory().getId(),
@@ -82,15 +83,7 @@ public class HistoryServiceImpl implements HistoryService {
                         ))
                 ));
 
-        List<HistoryResponseDTO.MonthlyHistoryItemResult> resultList = histories.stream()
-                .map(history -> HistoryResponseDTO.MonthlyHistoryItemResult.builder()
-                        .historyId(history.getId())
-                        .date(history.getHistoryDate().toString())
-                        .imageUrl(firstImagesOfHistory.getOrDefault(history.getId(), "비공개입니다"))
-                        .build())
-                .collect(Collectors.toList());
-
-        return HistoryConverter.toMonthlyHistoryPreview(member, resultList);
+        return HistoryConverter.toMonthlyHistoryPreview(member, histories, firstImagesOfHistory);
     }
 
     // 일별 기록 조회
@@ -126,16 +119,7 @@ public class HistoryServiceImpl implements HistoryService {
 
         List<Cloth> cloths =  clothRepository.findByMemberId(member.getId());
 
-        List<HistoryResponseDTO.DailyHistoryClothesPreview> clothPreviews = cloths.stream()
-                .map(cloth -> HistoryResponseDTO.DailyHistoryClothesPreview.builder()
-                        .clothId(cloth.getId())
-                        .clothImageUrl(cloth.getClothUrl())  // 이미지 필드 맞게 수정
-                        .clothName(cloth.getName())
-                        .build())
-                .toList();
-
-
-        return HistoryConverter.toDailyHistoryPreview(member, history, images, hashtagNameList, commentCount, clothPreviews);
+        return HistoryConverter.toDailyHistoryPreview(member, history, images, hashtagNameList, commentCount, cloths);
     }
 
     // 날짜별 옷 기록 추가
@@ -144,7 +128,7 @@ public class HistoryServiceImpl implements HistoryService {
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> image) {
 
         // 이미지 업로드 개수 제한
-        if (image.size() >= 10) {
+        if (image.size() >= IMAGE_LIMIT) {
             throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
         }
 
@@ -164,15 +148,12 @@ public class HistoryServiceImpl implements HistoryService {
         // clothId 검증
         List<Long> requestedIds = historyCreateRequest.getClothes();
 
-        for (Long id : requestedIds) {
-            boolean exists = clothRepository.existsById(id);
-            if (!exists) {
-                throw new HistoryException(ErrorStatus.NO_SUCH_CLOTH);
-            }
-        }
+        // DB에서 요청된 clothId 전부 가져옴
+        List<Cloth> clothes = clothRepository.findAllByIdsAndMemberId(requestedIds, member.getId());
 
-        // ClothId 기록
-        List<Cloth> clothes = clothRepository.findAllById(requestedIds);
+        if (clothes.size() != requestedIds.size()) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_CLOTH);
+        }
 
         List<HistoryCloth> historyClothes = clothes.stream()
                 .map(cloth -> HistoryCloth.builder()
@@ -261,7 +242,7 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest request, List<MultipartFile> images, Long historyId) {
 
-        if (images.size() >= 10) {
+        if (images.size() >= IMAGE_LIMIT) {
             throw new HistoryException(ErrorStatus.TOO_MANY_IMAGES);
         }
 
@@ -281,7 +262,12 @@ public class HistoryServiceImpl implements HistoryService {
 
         // 새로운 clothes 저장
         List<Long> clothIds = request.getClothes();
-        List<Cloth> clothes = clothRepository.findAllById(clothIds);
+
+        List<Cloth> clothes = clothRepository.findAllByIdsAndMemberId(clothIds, member.getId());
+
+        if (clothes.size() != clothIds.size()) {
+            throw new HistoryException(ErrorStatus.NO_SUCH_CLOTH);
+        }
 
         List<HistoryCloth> historyClothes = clothes.stream()
                 .map(cloth -> HistoryCloth.builder()
@@ -332,13 +318,13 @@ public class HistoryServiceImpl implements HistoryService {
             try {
                 objectName = url.substring(url.lastIndexOf("/") + 1);
             } catch (Exception ex) {
-                System.err.println("❌ URL에서 objectName 추출 실패: " + url);
+                System.err.println("URL에서 objectName 추출 실패: " + url);
                 continue;
             }
 
             // MinIO에서 삭제 시도
             try {
-                System.out.println("🗑️ MinIO 삭제 시도: " + objectName);
+                System.out.println("MinIO 삭제 시도: " + objectName);
 
                 minioClient.removeObject(
                         RemoveObjectArgs.builder()
@@ -347,9 +333,9 @@ public class HistoryServiceImpl implements HistoryService {
                                 .build()
                 );
 
-                System.out.println("✅ 삭제 성공: " + objectName);
+                System.out.println("삭제 성공: " + objectName);
             } catch (Exception e) {
-                System.err.println("❌ 삭제 실패: " + objectName + ", 이유: " + e.getMessage());
+                System.err.println("삭제 실패: " + objectName + ", 이유: " + e.getMessage());
                 throw new HistoryException(ErrorStatus.MINIO_DELETE_FAILED); // 정의 필요
             }
         }
@@ -358,6 +344,7 @@ public class HistoryServiceImpl implements HistoryService {
         // DB에서 HistoryImage 삭제
         historyImageRepository.deleteAllByHistory(history);
 
+        // 중복
         // 새 이미지 업로드 및 저장
         for (MultipartFile file : images) {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -429,5 +416,75 @@ public class HistoryServiceImpl implements HistoryService {
 
         // 해당 기록 삭제
         historyRepository.delete(history);
+    }
+
+    // 좋아요 추가 및 삭제
+    @Transactional
+    @Override
+    public HistoryResponseDTO.HistoryLikeResult likeHistory(Long historyId, boolean isLiked) {
+
+        // 로그인 된 계정
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        if (isLiked) {
+            history.decreaseLikes();
+            memberLikeRepository.deleteByMemberIdAndHistoryId(member.getId(), historyId);
+        } else {
+            history.increaseLikes();
+
+            MemberLike memberLike = MemberLike.builder()
+                    .member(member)
+                    .history(history)
+                    .build();
+
+            memberLikeRepository.save(memberLike);
+        }
+
+        return HistoryConverter.toHistoryLikeResult(history, isLiked);
+    }
+
+    @Transactional
+    @Override
+    public HistoryResponseDTO.CommentWriteResult writeComment(Long historyId, Long parentCommentId, String content) {
+
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        Comment parentComment = null;
+
+        // 상위 댓글이 존재하는지 확인
+        if (parentCommentId != null) {
+            parentComment = commentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_COMMENT));
+
+            // 대댓글까지만 가능하도록 처리
+            if (parentComment.getComment() != null) {
+                throw new HistoryException(ErrorStatus.TOO_DEEP_REPLY);
+            }
+
+            // 같은 히스토리인지 확인
+            if (!parentComment.getHistory().getId().equals(historyId)) {
+                throw new HistoryException(ErrorStatus.PARENT_COMMENT_HISTORY);
+            }
+        }
+
+        // 댓글 엔티티 생성
+        Comment comment = Comment.builder()
+                .content(content)
+                .comment(parentComment) // null이면 일반 댓글, 아니면 대댓글
+                .history(history)
+                .member(member)
+                .build();
+
+        Comment result = commentRepository.save(comment);
+
+        return HistoryConverter.toCommentWriteResult(result);
     }
 }
