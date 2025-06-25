@@ -89,6 +89,7 @@ public class HistoryRestController {
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_UPDATED, result);
     }
 
+    // 기록 삭제
     @DeleteMapping("{history-id}")
     @Operation(summary = "유저의 날짜별 옷 기록을 삭제하는 API", description = "path variable로 history-id를 넘겨주세요.")
     @ApiResponses({
@@ -103,5 +104,32 @@ public class HistoryRestController {
         historyService.deleteHistory(historyId);
 
         return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
+    }
+
+    // 좋아요 추가 / 삭제
+    @PostMapping("/like")
+    @Operation(summary = "기록의 좋아요를 추가하고 삭제하는 API", description = "request body에 좋아요 상태와 history-id를 넘겨주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_LIKE_201", description = "CREATED, 좋아요 상태가 성공적으로 변경되었습니다..")
+    })
+    public BaseResponse<HistoryResponseDTO.HistoryLikeResult> like(
+            @RequestBody @Valid  HistoryRequestDTO.HistoryLikeRequest historyLikeRequest) {
+
+        HistoryResponseDTO.HistoryLikeResult result = historyService.likeHistory(historyLikeRequest.getHistoryId(), historyLikeRequest.isLiked());
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_LIKE_CREATED, result);
+    }
+
+    // 댓글 작성
+    @PostMapping("/{historyId}/comments")
+    @Operation(summary = "댓글을 작성하는 API", description = "path variable에 history-id를 넘겨주시고, request body에 commentId와 content를 넘겨주세요.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_COMMENT_201", description = "CREATED, 댓글이 성공적으로 생성되었습니다.")
+    })
+    public BaseResponse<HistoryResponseDTO.CommentWriteResult> writeComment(
+            @PathVariable @Valid Long historyId,
+            @RequestBody @Valid  HistoryRequestDTO.CommentWriteRequest commentWriteRequest) {
+
+        return BaseResponse.onSuccess(SuccessStatus.HISTORY_COMMENT_CREATED, historyService.writeComment(historyId, commentWriteRequest.getCommentId(), commentWriteRequest.getContent()));
     }
 }

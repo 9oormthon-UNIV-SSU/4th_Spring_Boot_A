@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface HistoryService {
 
+    // 기록
     HistoryResponseDTO.MonthlyHistoryPreview getMonthlyPreview(String clokeyId, String date);
 
     HistoryResponseDTO.DailyHistoryPreview getDailyPreview(Long historyId);
@@ -18,4 +19,10 @@ public interface HistoryService {
     HistoryResponseDTO.HistoryUpdateResult updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest, List<MultipartFile> imageFile, Long historyId);
 
     void deleteHistory(Long historyId);
+
+    // 좋아요
+    HistoryResponseDTO.HistoryLikeResult likeHistory(Long historyId, boolean liked);
+
+    // 댓글 작성
+    HistoryResponseDTO.CommentWriteResult writeComment(Long historyId, Long parentCommentId, String content);
 }

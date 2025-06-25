@@ -77,4 +77,28 @@ public class HistoryResponseDTO {
 
         private Long historyId;
     }
+
+    // 좋아요
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLikeResult {
+
+        private Long historyId;
+
+        private boolean isLiked;
+
+        private int likeCount;
+    }
+
+    // 댓글 작성
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentWriteResult {
+
+        private Long commentId;
+    }
 }

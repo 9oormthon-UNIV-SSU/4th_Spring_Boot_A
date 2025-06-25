@@ -43,4 +43,28 @@ public class HistoryRequestDTO {
 
         private Visibility visibility;
     }
+
+    // 좋아요
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HistoryLikeRequest {
+
+        private Long historyId;
+
+        private boolean liked;
+    }
+
+    // 댓글 작성
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentWriteRequest {
+
+        private Long commentId;
+
+        private String content;
+    }
 }

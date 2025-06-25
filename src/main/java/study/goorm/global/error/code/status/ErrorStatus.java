@@ -31,6 +31,10 @@ public enum ErrorStatus implements BaseErrorCode{
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "기록이 존재하지 않습니다."),
     INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "HISTORY_4002", "날짜 형식이 맞지 않습니다."),
     NO_SUCH_HASHTAG(HttpStatus.BAD_REQUEST, "HISTORY_4003", "해당 해시태그가 존재하지 않습니다."),
+    NO_SUCH_COMMENT(HttpStatus.BAD_REQUEST, "HISTORY_4004", "해당 댓글이 존재하지 않습니다."),
+    PARENT_COMMENT_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4005", "부모 댓글이 같은 히스토리에 속하지 않습니다."),
+    TOO_DEEP_REPLY(HttpStatus.BAD_REQUEST, "HISTORY_4006", "대댓글까지만 작성 가능합니다."),
+
 
     // MINIO
     MINIO_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "MINIO_4001", "이미지 업로드에 실패했습니다."),

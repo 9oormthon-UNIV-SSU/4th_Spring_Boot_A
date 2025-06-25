@@ -3,6 +3,8 @@ package study.goorm.domain.cloth.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.member.domain.entity.Member;
 
@@ -24,4 +26,8 @@ public interface ClothRepository extends JpaRepository<Cloth, Long> {
     Page<Cloth> findByMemberOrderByCreatedAtDesc(Member member, Pageable pageable);
 
     List<Cloth> findByMemberId(Long memberId);
+
+    @Query("SELECT c FROM Cloth c WHERE c.id IN :ids AND c.member.id = :memberId")
+    List<Cloth> findAllByIdsAndMemberId(@Param("ids") List<Long> ids, @Param("memberId") Long memberId);
+
 }

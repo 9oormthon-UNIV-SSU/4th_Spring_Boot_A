@@ -33,12 +33,22 @@ public class History extends BaseEntity {
     @Column(length = 200)
     private String content;
 
-    // update 메서드 추가
-    public void update(String content) {
-        this.content = content;
-    }
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    // update 메서드 추가
+
+    public void update(String content) {
+        this.content = content;
+    }
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    public void decreaseLikes() {
+        if (this.likes > 0) {
+            this.likes--;
+        }
+    }
 }
