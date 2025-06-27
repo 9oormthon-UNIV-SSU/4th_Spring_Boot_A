@@ -1,6 +1,8 @@
 package study.goorm.domain.history.domain.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +21,8 @@ import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
+
+import java.util.Map;
 import java.util.Optional;
 
 import java.time.LocalDate;
@@ -382,4 +386,78 @@ public class HistoryServiceImpl implements HistoryService {
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.CommentListResult getComments(Long historyId, int page) {
+
+        // 예외처리
+        if (page < 1) {
+            throw new HistoryException(ErrorStatus.PAGE_UNDER_ONE);
+        }
+
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+
+        // 페이징 조건 생성
+        PageRequest pageRequest = PageRequest.of(page - 1, 10);
+
+        // 부모 댓글만 페이징 조회해서 10개씩 가져옴
+        Page<Comment> parentPage = commentRepository.findAllByHistoryAndCommentIsNull(history, pageRequest);
+
+        // 부모 댓글 목록과, 이들에 딸린 대댓글을 한 번에 조회
+        List<Comment> parents = parentPage.getContent();
+        List<Comment> allReplies =
+                commentRepository.findAllByCommentIn(parents);
+
+        // parentId 별로 그룹핑
+        Map<Long, List<Comment>> repliesByParent = allReplies.stream()
+                .collect(Collectors.groupingBy(c -> c.getComment().getId()));
+
+        // DTO 변환: 부모 댓글 하나당 그룹에서 대댓글 리스트 꺼내 붙이기
+        List<HistoryResponseDTO.CommentDto> commentDtos = parents.stream()
+                .map(parent -> {
+                    List<HistoryResponseDTO.ReplyDto> replies =
+                            repliesByParent.getOrDefault(parent.getId(), List.of())
+                                    .stream()
+                                    .map(historyConverter::toReplyDto)
+                                    .collect(Collectors.toList());
+                    return historyConverter.toCommentDto(parent, replies);
+                })
+                .collect(Collectors.toList());
+
+
+        return historyConverter.toCommentListResult(parentPage, commentDtos);
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_COMMENT));
+
+        // 대댓글 모두 조회하여 한 번에 삭제
+        List<Comment> replies = commentRepository.findAllByComment(comment);
+        if (!replies.isEmpty()) {
+            commentRepository.deleteAll(replies);
+        }
+
+//        commentRepository.delete(comment);
+    }
+
+    @Override
+    @Transactional
+    public void updateComment(
+            Long memberId,
+            Long commentId,
+            HistoryRequestDTO.CommentRequestDTO request
+    ) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_COMMENT));
+
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new HistoryException(ErrorStatus.NO_GRANT_HISTORY);
+        }
+
+        comment.setContent(request.getContent());
+    }
 }

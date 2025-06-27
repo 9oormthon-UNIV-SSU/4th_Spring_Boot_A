@@ -1,5 +1,6 @@
 package study.goorm.domain.history.domain.converter;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import study.goorm.domain.cloth.domain.entity.Cloth;
 import study.goorm.domain.history.domain.dto.HistoryRequestDTO;
@@ -100,8 +101,4 @@ public class HistoryConverter {
     public HistoryCloth toHistoryCloth(History history, Cloth cloth) {
         return HistoryCloth.builder()
                 .history(history)
-                .cloth(cloth)
-                .build();
-    }
-
-   
+                .clot

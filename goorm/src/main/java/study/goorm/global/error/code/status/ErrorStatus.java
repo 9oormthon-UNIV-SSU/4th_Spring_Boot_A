@@ -33,8 +33,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_OWN_CLOTH(HttpStatus.BAD_REQUEST,"HISTORY_4005","본인 옷이 아닙니다."),
     NO_STATE_LIKE(HttpStatus.BAD_REQUEST, "HISTORY_4006", "이미 좋아요가 눌려있거나 취소되어 있습니다."),
     NO_COMMENT_PLUS(HttpStatus.BAD_REQUEST, "HISTORY_4006", "대대댓글입니다."),
-
-
+    NO_SUCH_COMMENT(HttpStatus.BAD_REQUEST, "HISTORY_4007", "존재하지 않는 댓글입니다."),
     // Page
     PAGE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4001","페이지는 1이상으로 입력해야 합니다."),
     PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4002","페이지 사이즈는 1이상으로 입력해야 합니다.")
