@@ -262,7 +262,7 @@ public class HistoryServiceImpl implements HistoryService {
                         .build();
                 historyImages.add(historyImage);
             } catch (IOException e) {
-                throw new HistoryExeption(ErrorStatus.S3_IMAGE_UPLOAD_FAIL); // 필요시 에러코드 추가
+                throw new HistoryExeption(ErrorStatus.S3_IMAGE_UPLOAD_FAIL);
             }
         }
 

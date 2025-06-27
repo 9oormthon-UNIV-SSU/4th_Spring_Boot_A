@@ -75,7 +75,7 @@ public class HistoryConverter {
                     .followStatus(member.getIsFollowed())
                     .memberId(member.getMemberId())
                     .nickname(member.getNickname())
-                    .isMe(member.getIsMyself())
+                    .isMe(member.getIsMe())
                     .build());
         }
         return HistoryResponseDTO.HistoryLikedUserResultList.builder()

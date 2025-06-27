@@ -13,5 +13,5 @@ public class LikedMemberDTO {
     private String imageUrl;
     private String nickname;
     Boolean isFollowed;
-    Boolean isMyself;
+    Boolean isMe;
 }
