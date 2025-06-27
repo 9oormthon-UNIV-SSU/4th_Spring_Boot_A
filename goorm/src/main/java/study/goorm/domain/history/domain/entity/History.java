@@ -7,6 +7,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.model.entity.BaseEntity;
+import study.goorm.domain.model.enums.Visibility;
 
 import java.time.LocalDate;
 
@@ -37,5 +38,17 @@ public class History extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Visibility visibility;
 
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+
+   

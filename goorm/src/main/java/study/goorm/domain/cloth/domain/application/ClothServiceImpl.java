@@ -48,7 +48,7 @@ public class ClothServiceImpl implements ClothService {
         String firstImageUrl = clothImageUrls.stream()
                 .findFirst()
                 .map(ClothImage::getImageUrl)
-                .orElseThrow(() -> new ClothException(ErrorStatus.NO_ClOTH_IMAGE));
+                .orElseThrow(() -> new ClothException(ErrorStatus.NO_CLOTH_IMAGE));
 
         return ClothConverter.toClothEditViewResult(cloth, firstImageUrl);
     }
