@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import study.goorm.domain.model.enums.Visibility;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -37,21 +39,21 @@ public class HistoryRequestDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class HistoryUpdateRequest {
-
-        @NotBlank
-        @Size(max = 200)
+        @NotBlank(message = "내용은 필수입니다.")
+        @Size(max=200, message = "content는 200자 이하입니다.")
         private String content;
 
-        @NotNull
-        @Size(min = 1)
+        @Size(max = 10, message = "최대 10개의 옷만 허용됩니다.")
         private List<Long> clothes;
 
-        @NotNull
-        @Size(min = 1)
+        @Size(max = 10, message = "최대 10개의 해시태그만 허용됩니다.")
         private List<String> hashtags;
 
-        @NotNull
-        private Visibility visibility; // enum: PUBLIC or PRIVATE
+        @NotNull(message = "visibility는 필수입니다.")
+        private Visibility visibility;
+
     }
-}
+
+  

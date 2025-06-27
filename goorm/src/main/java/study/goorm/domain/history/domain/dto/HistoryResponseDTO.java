@@ -66,7 +66,7 @@ public class HistoryResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HistoryCreateResult{
+    public static class HistoryCreateResult {
         private Long historyId;
     }
-}
+

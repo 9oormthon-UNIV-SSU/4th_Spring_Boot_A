@@ -2,8 +2,9 @@ package study.goorm.domain.history.domain.converter;
 
 import org.springframework.stereotype.Component;
 import study.goorm.domain.cloth.domain.entity.Cloth;
+import study.goorm.domain.history.domain.dto.HistoryRequestDTO;
 import study.goorm.domain.history.domain.dto.HistoryResponseDTO;
-import study.goorm.domain.history.domain.entity.History;
+import study.goorm.domain.history.domain.entity.*;
 import study.goorm.domain.member.domain.entity.Member;
 
 import java.util.List;
@@ -71,4 +72,36 @@ public class HistoryConverter {
                 .build();
     }
 
-}
+    // History 엔티티 업데이트
+    // 컨버터에 로직이 들어가는건 지양하기
+    public History toUpdatedHistory(History existing, HistoryRequestDTO.HistoryUpdateRequest req) {
+        existing.setContent(req.getContent());
+        existing.setVisibility(req.getVisibility());
+        return existing;
+    }
+
+    // 이미지 매핑 엔티티 생성
+    public HistoryImage toHistoryImage(History history, String imageUrl) {
+        return HistoryImage.builder()
+                .history(history)
+                .imageUrl(imageUrl)
+                .build();
+    }
+
+    // HashtagHistory 매핑 생성
+    public HashtagHistory toHashtagHistory(History history, Hashtag hashtag) {
+        return HashtagHistory.builder()
+                .history(history)
+                .hashtag(hashtag)
+                .build();
+    }
+
+    // HistoryCloth 매핑 생성
+    public HistoryCloth toHistoryCloth(History history, Cloth cloth) {
+        return HistoryCloth.builder()
+                .history(history)
+                .cloth(cloth)
+                .build();
+    }
+
+   

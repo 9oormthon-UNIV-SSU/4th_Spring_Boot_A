@@ -28,6 +28,13 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_SUCH_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4001", "존재하지 않는 기록입니다."),
     NO_GRANT_HISTORY(HttpStatus.BAD_REQUEST, "HISTORY_4002", "기록에 접근 권한이 없습니다."),
     NO_HISTORY_IMAGE(HttpStatus.BAD_REQUEST, "HISTORY_4003", "기록에는 사진을 첨부해야합니다."),
+    NO_ENOUGH_IMAGES(HttpStatus.BAD_REQUEST,"HISTORY_4004","이미지는 1~10장 첨부해야 합니다."),
+    NO_ONLY_CLOTH(HttpStatus.BAD_REQUEST,"HISTORY_4005","중복된 옷 또는 해시태그가 있습니다."),
+    NO_OWN_CLOTH(HttpStatus.BAD_REQUEST,"HISTORY_4005","본인 옷이 아닙니다."),
+    NO_STATE_LIKE(HttpStatus.BAD_REQUEST, "HISTORY_4006", "이미 좋아요가 눌려있거나 취소되어 있습니다."),
+    NO_COMMENT_PLUS(HttpStatus.BAD_REQUEST, "HISTORY_4006", "대대댓글입니다."),
+
+
     // Page
     PAGE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4001","페이지는 1이상으로 입력해야 합니다."),
     PAGE_SIZE_UNDER_ONE(HttpStatus.BAD_REQUEST,"PAGE_4002","페이지 사이즈는 1이상으로 입력해야 합니다.")

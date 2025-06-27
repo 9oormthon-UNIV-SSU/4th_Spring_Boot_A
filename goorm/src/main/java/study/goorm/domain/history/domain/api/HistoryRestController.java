@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import study.goorm.domain.history.domain.application.HistoryService;
 import study.goorm.domain.history.domain.dto.HistoryRequestDTO;
 import study.goorm.domain.history.domain.dto.HistoryResponseDTO;
+import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.global.common.response.BaseResponse;
 import study.goorm.global.error.code.status.SuccessStatus;
 
@@ -77,6 +78,9 @@ public class HistoryRestController {
 
     @PatchMapping(value = "/{historyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "날짜별 옷 기록 수정 API", description = "기록 ID로 기존 기록을 수정합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "HISTORY_202", description = "PATCHED, 성공적으로 수정되었습니다.")
+    })
     public BaseResponse<Void> updateHistory(
             @PathVariable Long historyId,
             @RequestPart("metadata") @Valid HistoryRequestDTO.HistoryUpdateRequest metadata,
@@ -94,8 +98,4 @@ public class HistoryRestController {
     })
     public BaseResponse<Void> deleteHistory(@PathVariable Long historyId) {
         historyService.deleteHistory(historyId);
-        return BaseResponse.onSuccess(SuccessStatus.HISTORY_DELETED, null);
-    }
-
-
-}
+        return BaseResponse.onS
