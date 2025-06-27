@@ -24,18 +24,36 @@ public class History extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    @Setter
     private LocalDate historyDate;
 
     @Min(0)
     @Column(nullable = false, columnDefinition = "integer default 0")
     private int likes;
 
+    @Min(0)
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int comments;
+
     @Column(length = 200)
+    @Setter
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    // update 메서드 추가
+    public void update(String content) {
+        this.content = content;
+    }
+
+    public void decreaseLikes() {
+        this.likes = likes-1;
+    }
+
+    public void increaseLikes() {
+        this.likes = likes+1;
+    }
 }
 

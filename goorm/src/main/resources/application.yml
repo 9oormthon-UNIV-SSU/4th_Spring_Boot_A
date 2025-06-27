@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: jwt, aws #jwt.yml 불러오기
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -26,3 +28,16 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.jdbc.core: DEBUG
+
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET}
+    credentials:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
+    region:
+      static: ap-southeast-2
+      auto: false
+    stack:
+      auto: false

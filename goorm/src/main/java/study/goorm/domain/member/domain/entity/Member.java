@@ -8,6 +8,10 @@ import study.goorm.domain.model.entity.BaseEntity;
 import study.goorm.domain.model.enums.MemberStatus;
 import study.goorm.domain.model.enums.SocialType;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 @Entity
 @Getter
 @Setter
