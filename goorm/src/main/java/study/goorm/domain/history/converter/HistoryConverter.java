@@ -60,7 +60,7 @@ public class HistoryConverter {
     public static HistoryResponseDTO.HistoryLikeResult toHistoryLikeResult(History history, boolean isLiked) {
         return HistoryResponseDTO.HistoryLikeResult.builder()
                 .historyId(history.getId())
-                .liked(!isLiked)
+                .liked(isLiked)
                 .likeCount(history.getLikes())
                 .build();
     }

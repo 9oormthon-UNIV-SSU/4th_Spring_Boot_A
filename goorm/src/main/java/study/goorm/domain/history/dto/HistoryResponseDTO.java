@@ -129,22 +129,9 @@ public class HistoryResponseDTO {
         List<CommentResult> comments;
         int totalPage;
         int totalElements;
-
-        @JsonProperty("isFirst") // JSON 직렬화 시 "isFirst" 사용
         private boolean isFirst;
-
-        @JsonIgnore // "first" 필드 직렬화 방지
-        public boolean isFirst() {
-            return isFirst;
-        }
-
-        @JsonProperty("isLast") // JSON 직렬화 시 "isLast" 사용
         private boolean isLast;
 
-        @JsonIgnore // "last" 필드 직렬화 방지
-        public boolean isLast() {
-            return isLast;
-        }
     }
 
 

@@ -21,6 +21,7 @@ import study.goorm.domain.member.domain.entity.Member;
 import study.goorm.domain.member.domain.exception.MemberException;
 import study.goorm.domain.member.domain.repository.MemberRepository;
 import study.goorm.global.error.code.status.ErrorStatus;
+import study.goorm.storage.S3UploadService;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class HistoryServiceImpl implements HistoryService {
     private final HashtagRepository hashtagRepository;
     private final CommentRepository commentRepository;
     private final MemberLikeRepository memberLikeRepository;
+    private final S3UploadService s3UploadService;
 
 
     @Override
@@ -247,6 +249,25 @@ public class HistoryServiceImpl implements HistoryService {
                 .toList();
         hashtagHistoryRepository.saveAll(hashtagHistories);
 
+        List<HistoryImage> historyImages = new ArrayList<>();
+
+        for (MultipartFile file : image) {
+            if (file.isEmpty()) continue;
+
+            try {
+                String imageUrl = s3UploadService.saveFile(file); // S3에 업로드
+                HistoryImage historyImage = HistoryImage.builder()
+                        .history(history)
+                        .imageUrl(imageUrl)
+                        .build();
+                historyImages.add(historyImage);
+            } catch (IOException e) {
+                throw new HistoryExeption(ErrorStatus.S3_IMAGE_UPLOAD_FAIL); // 필요시 에러코드 추가
+            }
+        }
+
+        historyImageRepository.saveAll(historyImages);
+
         return HistoryConverter.toHistoryCreateResult(history);
     }
 
@@ -314,30 +335,21 @@ public class HistoryServiceImpl implements HistoryService {
         // DB에서 HistoryImage 삭제
         historyImageRepository.deleteAllByHistory(history);
 
-        String uploadDir = "history/"; // 상대 경로 또는 절대 경로
+        // S3 업로드 로직
         List<HistoryImage> newHistoryImages = new ArrayList<>();
 
         for (MultipartFile file : images) {
             if (file.isEmpty()) continue;
-
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String uniqueName = UUID.randomUUID().toString() + extension;
-
-            File dest = new File(uploadDir + uniqueName);
             try {
-                file.transferTo(dest); // 실제 파일 저장
+                String imageUrl = s3UploadService.saveFile(file); // Upload to S3
+                HistoryImage historyImage = HistoryImage.builder()
+                        .history(history)
+                        .imageUrl(imageUrl)
+                        .build();
+                newHistoryImages.add(historyImage);
             } catch (IOException e) {
-                throw new RuntimeException("이미지 저장 실패", e);
+                throw new HistoryExeption(ErrorStatus.S3_IMAGE_UPLOAD_FAIL);
             }
-
-            String imageUrl = "/uploads/history/" + uniqueName; // 클라이언트 접근 경로
-            HistoryImage historyImage = HistoryImage.builder()
-                    .history(history)
-                    .imageUrl(imageUrl)
-                    .build();
-
-            newHistoryImages.add(historyImage);
         }
 
         historyImageRepository.saveAll(newHistoryImages);
@@ -352,12 +364,8 @@ public class HistoryServiceImpl implements HistoryService {
         History history = historyRepository.findById(historyId)
                 .orElseThrow(() -> new HistoryExeption(ErrorStatus.NO_SUCH_HISTORY));
 
-        // 이미 게시물이 좋아요한 상태일 경우
+        // 게시물에 좋아요한 상태일 경우
         if (isLiked) {
-            history.decreaseLikes();
-            // 해당 게시물 좋아요 취소를 통해 멤버아이디와 기록아이디 삭제
-            memberLikeRepository.deleteByMemberIdAndHistoryId(memberId, historyId);
-        } else { // 게시물이 좋아요한 상태가 아닐 경우
             history.increaseLikes();
             // 해당 게시물 좋아요를 통해 멤버아이디와 기록아이디 등록
             MemberLike memberLike = MemberLike.builder()
@@ -365,6 +373,10 @@ public class HistoryServiceImpl implements HistoryService {
                     .member(memberRepository.findMemberById(memberId))
                     .build();
             memberLikeRepository.save(memberLike);
+        } else { // 게시물에 좋아요한 상태가 아닐 경우
+            history.decreaseLikes();
+            // 해당 게시물 좋아요 취소를 통해 멤버아이디와 기록아이디 삭제
+            memberLikeRepository.deleteByMemberIdAndHistoryId(memberId, historyId);
         }
 
         return HistoryConverter.toHistoryLikeResult(history, isLiked);
@@ -418,7 +430,7 @@ public class HistoryServiceImpl implements HistoryService {
                 historyRepository.findFlatCommentsByHistoryId(historyId, pageable);
 
         int totalRootCount = commentRepository.countActiveRootComments(historyId);
-        return HistoryConverter.toHistoryCommentResult(commentsDTO, page, 20, totalRootCount);
+        return HistoryConverter.toHistoryCommentResult(commentsDTO, page, 10, totalRootCount);
     }
 
     @Override

@@ -36,7 +36,10 @@ public enum ErrorStatus implements BaseErrorCode {
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "HISTORY_4002","이미지 업로드 개수를 초과했습니다"),
     NO_PERMISSION_FOR_RECORD(HttpStatus.BAD_REQUEST, "HISTORY_4006","기록에 접근 권한이 없습니다."),
     INVALID_LIKED(HttpStatus.BAD_REQUEST,"HISTORY_4004","잘못된 isLiked 값을 입력했습니다."),
-    NO_SUCH_COMMENT(HttpStatus.NOT_FOUND,"HISTORY_4005","존재하지 않는 댓글 ID입니다.");
+    NO_SUCH_COMMENT(HttpStatus.NOT_FOUND,"HISTORY_4005","존재하지 않는 댓글 ID입니다."),
+
+    // S3
+    S3_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3_001", "S3 이미지 업로드 실패");
 
     private final HttpStatus httpStatus;
     private final String code;
