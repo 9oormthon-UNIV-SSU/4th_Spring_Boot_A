@@ -118,10 +118,29 @@ public class HistoryServiceImpl implements HistoryService{
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public HistoryResponseDTO.LikedUsersResult getLikedUsers(Long historyId) {
+        // history 불러옴
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
+        // memberId 1번이 로그인한 유저라고 가정
+        Long loginMemberId = 1L;
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+
+        List<MemberLike> memberLikes = memberLikeRepository.findAllByHistory(history);
+        List<Member> likedUsersList = memberLikes.stream()
+                .map(MemberLike::getMember)
+                .collect(Collectors.toList());
+
+        return HistoryConverter.toLikedUsersResult(likedUsersList, member);
+    }
+
+    @Override
     @Transactional
     public HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles) {
 
-        // 이미지 업로드 개수 제한 < 10
+        // 이미지 업로드 개수 제한 < 10, != 0
         validateImageCount(imageFiles);
 
         // 날짜 형식이 맞는지 검사
@@ -218,17 +237,17 @@ public class HistoryServiceImpl implements HistoryService{
 
     @Override
     @Transactional
-    public void patchHistory(HistoryRequestDTO.HistoryPatchRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId){
+    public void updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId){
         // (memberId 1이 사용자라고 가정)
         Long loginMemberId = 1L;
         Member member = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
-        History history = historyRepository.findById(historyId)
+        History history = historyRepository.findByIdWithMember(historyId)
                 .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
 
         // 수정하려는 기록이 본인 기록이 아닐 때 예외 처리
-        if(!history.getMember().getId().equals(loginMemberId)) {
-            throw new HistoryException(ErrorStatus.HISTORY_PATCH_DENIED);
+        if (!history.isOwnedBy(member)) {
+            throw new HistoryException(ErrorStatus.HISTORY_UPDATE_DENIED);
         }
 
         // 이미지 업로드 개수 제한 <= 10 and != 0
@@ -298,6 +317,24 @@ public class HistoryServiceImpl implements HistoryService{
 
     @Override
     @Transactional
+    public void updateComment(HistoryRequestDTO.CommentUpdateRequest commentUpdateRequest, Long commentId) {
+        // (memberId 1이 사용자라고 가정)
+        Long loginMemberId = 1L;
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+        Comment comment = commentRepository.findByIdWithMember(commentId)
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_COMMENT));
+
+        // 수정하려는 댓글이 본인 댓글이 아닐 때 예외 처리
+        if(!isOwnedBy(comment, member)) { // 이거 그냥 서비스에 private 메서드로 빼는게 좋을 것 같음
+            throw new HistoryException((ErrorStatus.COMMENT_UPDATE_DENIED));
+        }
+
+        comment.setContent(commentUpdateRequest.getContent());
+    }
+
+    @Override
+    @Transactional
     public void deleteHistory(Long historyId) {
         History history = historyRepository.findById(historyId)
                 .orElseThrow(()-> new HistoryException(ErrorStatus.NO_SUCH_HISTORY));
@@ -359,5 +396,14 @@ public class HistoryServiceImpl implements HistoryService{
         for (Cloth cloth : clothes) {
             cloth.decreaseWearNum(); // 엔티티 내부에 캡슐화된 메서드 호출
         }
+    }
+
+    private boolean isOwnedBy(Comment comment, Member member) {
+        // 현재 기록의 주인이 없거나, 비교 대상 멤버가 없으면 false
+        if (comment.getMember() == null || member == null) {
+            return false;
+        }
+        // Member 객체끼리 비교 (Member 클래스에 equals가 id 기준으로 구현되어 있어야 함)
+        return comment.getMember().equals(member);
     }
 }

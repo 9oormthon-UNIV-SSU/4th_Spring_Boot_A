@@ -40,18 +40,18 @@ public class HistoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DailyHistoryResult {
-        Long memberId;
-        String memberImageUrl;
-        String nickName;
-        String clokeyId;
-        String contents;
-        List<String> images;
-        List<String> hashtags;
-        int likeCount;
-        boolean liked;
-        LocalDate date;
-        List<DailyHistoryItemResult> clothes;
-        Long historyId;
+        private Long memberId;
+        private String memberImageUrl;
+        private String nickName;
+        private String clokeyId;
+        private String contents;
+        private List<String> images;
+        private List<String> hashtags;
+        private int likeCount;
+        private boolean liked;
+        private LocalDate date;
+        private List<DailyHistoryItemResult> clothes;
+        private Long historyId;
     }
 
     @Builder
@@ -59,9 +59,29 @@ public class HistoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DailyHistoryItemResult {
-        Long clothId;
-        String clothName;
-        String clothImageUrl;
+        private Long clothId;
+        private String clothName;
+        private String clothImageUrl;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LikedUsersResult {
+        private List<LikedUsersResultItem> likedUsers;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LikedUsersResultItem {
+        private Long memberId;
+        private String clokeyId;
+        private String nickName;
+        private String imageUrl;
+        private boolean me;
     }
 
     @Builder

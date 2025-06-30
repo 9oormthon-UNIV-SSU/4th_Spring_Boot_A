@@ -1,7 +1,8 @@
 package study.goorm.domain.history.dto;
 
-import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class HistoryRequestDTO {
     @AllArgsConstructor
     public static class HistoryCreateRequest {
 
-        @Column(length = 200)
+        @Size(max = 200, message = "내용은 최대 200자까지 입력 가능합니다.")
         private String content;
 
         private List<Long> clothes;
@@ -33,9 +34,9 @@ public class HistoryRequestDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HistoryPatchRequest {
+    public static class HistoryUpdateRequest {
 
-        @Column(length = 200)
+        @Size(max = 200, message = "내용은 최대 200자까지 입력 가능합니다.")
         private String content;
 
         private List<Long> clothes;
@@ -43,5 +44,16 @@ public class HistoryRequestDTO {
         private List<String> hashtags;
 
         private Visibility visibility;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentUpdateRequest {
+        @Size(max = 50, message = "댓글은 최대 50자까지 입력 가능합니다.")
+        @NotNull
+        @NotBlank
+        private String content;
     }
 }

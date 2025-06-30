@@ -13,9 +13,13 @@ public interface HistoryService {
 
     HistoryResponseDTO.DailyHistoryResult getDailyHistory(Long historyId);
 
+    HistoryResponseDTO.LikedUsersResult getLikedUsers(Long historyId);
+
     HistoryResponseDTO.HistoryCreateResult createHistory(HistoryRequestDTO.HistoryCreateRequest historyCreateRequest, List<MultipartFile> imageFiles);
 
-    void patchHistory(HistoryRequestDTO.HistoryPatchRequest historyPatchRequest, List<MultipartFile> imageFiles, Long historyId);
+    void updateHistory(HistoryRequestDTO.HistoryUpdateRequest historyUpdateRequest, List<MultipartFile> imageFiles, Long historyId);
+
+    void updateComment(HistoryRequestDTO.CommentUpdateRequest commentUpdateRequest, Long commentId);
 
     void deleteHistory(Long historyId);
 
