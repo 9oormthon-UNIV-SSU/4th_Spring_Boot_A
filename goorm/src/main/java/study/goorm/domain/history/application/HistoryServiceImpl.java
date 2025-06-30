@@ -323,10 +323,10 @@ public class HistoryServiceImpl implements HistoryService{
         Member member = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
         Comment comment = commentRepository.findByIdWithMember(commentId)
-                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_MEMBER));
+                .orElseThrow(() -> new HistoryException(ErrorStatus.NO_SUCH_COMMENT));
 
         // 수정하려는 댓글이 본인 댓글이 아닐 때 예외 처리
-        if(!comment.isOwnedBy(member)) {
+        if(!isOwnedBy(comment, member)) { // 이거 그냥 서비스에 private 메서드로 빼는게 좋을 것 같음
             throw new HistoryException((ErrorStatus.COMMENT_UPDATE_DENIED));
         }
 
@@ -396,5 +396,14 @@ public class HistoryServiceImpl implements HistoryService{
         for (Cloth cloth : clothes) {
             cloth.decreaseWearNum(); // 엔티티 내부에 캡슐화된 메서드 호출
         }
+    }
+
+    private boolean isOwnedBy(Comment comment, Member member) {
+        // 현재 기록의 주인이 없거나, 비교 대상 멤버가 없으면 false
+        if (comment.getMember() == null || member == null) {
+            return false;
+        }
+        // Member 객체끼리 비교 (Member 클래스에 equals가 id 기준으로 구현되어 있어야 함)
+        return comment.getMember().equals(member);
     }
 }
